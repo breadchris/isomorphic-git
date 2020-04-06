@@ -63,7 +63,7 @@ const http = require('isomorphic-git/http/node')
 const fs = require('fs')
 
 const dir = path.join(process.cwd(), 'test-clone')
-git.clone({ fs, http, dir, url: 'https://github.com/isomorphic-git/lightning-fs' }).then(console.log)
+git.clone({ fs, http, dir, url: 'https://github.com/isomorphic-git/lightning-fs.git' }).then(console.log)
 ```
 
 If you're using `isomorphic-git` in the browser, you'll need something that emulates the `fs` API.
@@ -79,7 +79,7 @@ import http from 'https://unpkg.com/isomorphic-git@beta/http/web/index.js'
 const fs = new LightningFS('fs')
 
 const dir = '/test-clone'
-git.clone({ fs, http, dir, url: 'https://github.com/isomorphic-git/lightning-fs', corsProxy: 'https://cors.isomorphic-git.org' }).then(console.log)
+git.clone({ fs, http, dir, url: 'https://github.com/isomorphic-git/lightning-fs.git', corsProxy: 'https://cors.isomorphic-git.org' }).then(console.log)
 </script>
 ```
 
