@@ -66,6 +66,15 @@ describe('add', () => {
     await add({ fs, dir, filepath: 'c' })
     expect((await listFiles({ fs, dir })).length).toEqual(3)
   })
+  it('symlink', async () => {
+    // Setup
+    const { fs, dir } = await makeFixture('test-add')
+    // Test
+    await init({ fs, dir })
+    expect((await listFiles({ fs, dir })).length).toEqual(0)
+    await add({ fs, dir, filepath: 'a-symlink.txt' })
+    expect((await listFiles({ fs, dir })).length).toEqual(1)
+  })
   it('git add .', async () => {
     // Setup
     const { fs, dir } = await makeFixture('test-add')
