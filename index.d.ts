@@ -895,6 +895,7 @@ export function checkout({ fs, onProgress, dir, gitdir, remote, ref: _ref, filep
  *
  */
 export function clone({ fs, http, onProgress, onMessage, onAuth, onAuthSuccess, onAuthFailure, dir, gitdir, url, corsProxy, ref, remote, depth, since, exclude, relative, singleBranch, noCheckout, noTags, headers, }: 
+/*
  * @param {FsClient} args.fs - a file system implementation
  * @param {HttpClient} args.http - an HTTP client
  * @param {ProgressCallback} [args.onProgress] - optional progress event callback
@@ -916,6 +917,7 @@ export function clone({ fs, http, onProgress, onMessage, onAuth, onAuthSuccess, 
  * @param {string[]} [args.exclude] - A list of branches or tags. Instructs the remote server not to send us any commits reachable from these refs.
  * @param {boolean} [args.relative] - Changes the meaning of `depth` to be measured from the current shallow depth rather than from the branch tip.
  * @param {Object<string, string>} [args.headers] - Additional headers to include in HTTP requests, similar to git's `extraHeader` config
+ */
 ): Promise<void>;
 /**
  * Create a new commit
@@ -959,6 +961,7 @@ export function clone({ fs, http, onProgress, onMessage, onAuth, onAuthSuccess, 
  *
  */
 export function commit({ fs: _fs, onSign, dir, gitdir, message, author: _author, committer: _committer, signingKey, dryRun, noUpdateBranch, ref, parent, tree, }: 
+ /*
  * @param {FsClient} args.fs - a file system implementation
  * @param {SignCallback} [args.onSign] - a PGP signing implementation
  * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
@@ -982,6 +985,7 @@ export function commit({ fs: _fs, onSign, dir, gitdir, message, author: _author,
  * @param {string} [args.ref] - The fully expanded name of the branch to commit to. Default is the current branch pointed to by HEAD. (TODO: fix it so it can expand branch names without throwing if the branch doesn't exist yet.)
  * @param {string[]} [args.parent] - The SHA-1 object ids of the commits to use as parents. If not specified, the commit pointed to by `ref` is used.
  * @param {string} [args.tree] - The SHA-1 object id of the tree to use. If not specified, a new tree object is created from the current git index.
+ */
 ): Promise<string>;
 /**
  * Get the name of the branch currently pointed to by .git/HEAD
@@ -1937,6 +1941,7 @@ export function pull({ fs: _fs, http, onProgress, onMessage, onAuth, onAuthSucce
  *
  */
 export function push({ fs, http, onProgress, onMessage, onAuth, onAuthSuccess, onAuthFailure, dir, gitdir, ref, remoteRef, remote, url, force, delete: _delete, corsProxy, headers, }: 
+ /*
  * @param {FsClient} args.fs - a file system client
  * @param {HttpClient} args.http - an HTTP client
  * @param {ProgressCallback} [args.onProgress] - optional progress event callback
@@ -1954,6 +1959,7 @@ export function push({ fs, http, onProgress, onMessage, onAuth, onAuthSuccess, o
  * @param {boolean} [args.delete] - If true, delete the remote ref
  * @param {string} [args.corsProxy] - Optional [CORS proxy](https://www.npmjs.com/%40isomorphic-git/cors-proxy). Overrides value in repo config.
  * @param {Object<string, string>} [args.headers] - Additional headers to include in HTTP requests, similar to git's `extraHeader` config
+ */
 ): Promise<PushResult>;
 /**
  *
@@ -2920,6 +2926,7 @@ export function version(): string;
  * @returns {Promise<any>} The finished tree-walking result
  */
 export function walk({ fs, dir, gitdir, trees, map, reduce, iterate, }: 
+ /*
  * @param {FsClient} args.fs - a file system client
  * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
  * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
@@ -2927,6 +2934,7 @@ export function walk({ fs, dir, gitdir, trees, map, reduce, iterate, }:
  * @param {WalkerMap} [args.map] - Transform `WalkerEntry`s into a result form
  * @param {WalkerReduce} [args.reduce] - Control how mapped entries are combined with their parent result
  * @param {WalkerIterate} [args.iterate] - Fine-tune how entries within a tree are iterated over
+ */
 ): Promise<any>;
 /**
  * Write a blob object directly
