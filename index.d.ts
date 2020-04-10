@@ -90,11 +90,7 @@ export type GetRemoteInfoResult = {
      * - The list of capabilities returned by the server (part of the Git protocol)
      */
     capabilities: string[];
-    refs?: 
-     * @property {Object<string, string>} [refs.heads] - The branches on the remote
-     * @property {Object<string, string>} [refs.pull] - The special branches representing pull requests (non-standard)
-     * @property {Object<string, string>} [refs.tags] - The tags on the remote
-    ;
+    refs: any;
 };
 /**
  * - The object returned has the following schema:
@@ -291,18 +287,8 @@ export type CommitObject = {
      * an array of zero or more SHA-1 object ids
      */
     parent: string[];
-    author: 
-     * @property {string} author.name The author's name
-     * @property {string} author.email The author's email
-     * @property {number} author.timestamp UTC Unix timestamp in seconds
-     * @property {number} author.timezoneOffset Timezone difference from UTC in minutes
-    ;
-    committer: 
-     * @property {string} committer.name The committer's name
-     * @property {string} committer.email The committer's email
-     * @property {number} committer.timestamp UTC Unix timestamp in seconds
-     * @property {number} committer.timezoneOffset Timezone difference from UTC in minutes
-    ;
+    author: any;
+    committer: any;
     /**
      * PGP signature (if present)
      */
@@ -328,12 +314,7 @@ export type TagObject = {
      * the tag name
      */
     tag: string;
-    tagger: 
-     * @property {string} tagger.name the tagger's name
-     * @property {string} tagger.email the tagger's email
-     * @property {number} tagger.timestamp UTC Unix timestamp in seconds
-     * @property {number} tagger.timezoneOffset timezone difference from UTC in minutes
-    ;
+    tagger: any;
     /**
      * tag message
      */
@@ -435,19 +416,7 @@ export type CallbackFsClient = {
     chmod?: function;
 };
 export type PromiseFsClient = {
-    promises: 
-     * @property {function} promises.readFile - https://nodejs.org/api/fs.html#fs_fspromises_readfile_path_options
-     * @property {function} promises.writeFile - https://nodejs.org/api/fs.html#fs_fspromises_writefile_file_data_options
-     * @property {function} promises.unlink - https://nodejs.org/api/fs.html#fs_fspromises_unlink_path
-     * @property {function} promises.readdir - https://nodejs.org/api/fs.html#fs_fspromises_readdir_path_options
-     * @property {function} promises.mkdir - https://nodejs.org/api/fs.html#fs_fspromises_mkdir_path_options
-     * @property {function} promises.rmdir - https://nodejs.org/api/fs.html#fs_fspromises_rmdir_path
-     * @property {function} promises.stat - https://nodejs.org/api/fs.html#fs_fspromises_stat_path_options
-     * @property {function} promises.lstat - https://nodejs.org/api/fs.html#fs_fspromises_lstat_path_options
-     * @property {function} [promises.readlink] - https://nodejs.org/api/fs.html#fs_fspromises_readlink_path_options
-     * @property {function} [promises.symlink] - https://nodejs.org/api/fs.html#fs_fspromises_symlink_target_path_type
-     * @property {function} [promises.chmod] - https://nodejs.org/api/fs.html#fs_fspromises_chmod_path_mode
-    ;
+    promises: any;
 };
 export type FsClient = CallbackFsClient | PromiseFsClient;
 export type MessageCallback = (message: string) => void | Promise<void>;
@@ -601,9 +570,7 @@ export function STAGE(): Walker;
  * @param {string} [args.ref='HEAD']
  * @returns {Walker}
  */
-export function TREE({ ref }: 
- * @param {string} [args.ref]
-): Walker;
+export function TREE({ ref }): Walker;
 /**
  * @returns {Walker}
  */
@@ -625,12 +592,7 @@ export function WORKDIR(): Walker;
  * console.log('done')
  *
  */
-export function add({ fs: _fs, dir, gitdir, filepath, }: 
- * @param {FsClient} args.fs - a file system implementation
- * @param {string} args.dir - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string} args.filepath - The path to the file to add to the index
-): Promise<void>;
+export function add({ fs: _fs, dir, gitdir, filepath, }): Promise<void>;
 /**
  * Add or update an object note
  *
@@ -657,29 +619,7 @@ export function add({ fs: _fs, dir, gitdir, filepath, }:
  *
  * @returns {Promise<string>} Resolves successfully with the SHA-1 object id of the commit object for the added note.
  */
-export function addNote({ fs: _fs, onSign, dir, gitdir, ref, oid, note, force, author: _author, committer: _committer, signingKey, }: 
- * @param {FsClient} args.fs - a file system implementation
- * @param {SignCallback} [args.onSign] - a PGP signing implementation
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string} [args.ref] - The notes ref to look under
- * @param {string} args.oid - The SHA-1 object id of the object to add the note to.
- * @param {string | Uint8Array} args.note - The note to add
- * @param {boolean} [args.force] - Over-write note if it already exists.
- * @param {
- * @param {string} [args.author.name] - Default is `user.name` config.
- * @param {string} [args.author.email] - Default is `user.email` config.
- * @param {number} [args.author.timestamp] - Set the author timestamp field. This is the integer number of seconds since the Unix epoch (1970-01-01 00:00:00).
- * @param {number} [args.author.timezoneOffset] - Set the author timezone offset field. This is the difference, in minutes, from the current timezone to UTC. Default is `(new Date()).getTimezoneOffset()`.
-} [args.author] - The details about the author.
- * @param {
- * @param {string} [args.committer.name] - Default is `user.name` config.
- * @param {string} [args.committer.email] - Default is `user.email` config.
- * @param {number} [args.committer.timestamp] - Set the committer timestamp field. This is the integer number of seconds since the Unix epoch (1970-01-01 00:00:00).
- * @param {number} [args.committer.timezoneOffset] - Set the committer timezone offset field. This is the difference, in minutes, from the current timezone to UTC. Default is `(new Date()).getTimezoneOffset()`.
-} [args.committer] - The details about the note committer, in the same format as the author parameter. If not specified, the author details are used.
- * @param {string} [args.signingKey] - Sign the note commit using this private PGP key.
-): Promise<string>;
+export function addNote({ fs: _fs, onSign, dir, gitdir, ref, oid, note, force, author: _author, committer: _committer, signingKey, }): Promise<string>;
 /**
  * Add or update a remote
  *
@@ -703,14 +643,7 @@ export function addNote({ fs: _fs, onSign, dir, gitdir, ref, oid, note, force, a
  * console.log('done')
  *
  */
-export function addRemote({ fs, dir, gitdir, remote, url, force, }: 
- * @param {FsClient} args.fs - a file system implementation
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string} args.remote - The name of the remote
- * @param {string} args.url - The URL of the remote
- * @param {boolean} [args.force] - Instead of throwing an error if a remote named `remote` already exists, overwrite the existing remote.
-): Promise<void>;
+export function addRemote({ fs, dir, gitdir, remote, url, force, }): Promise<void>;
 /**
  * Create an annotated tag.
  *
@@ -747,24 +680,7 @@ export function addRemote({ fs, dir, gitdir, remote, url, force, }:
  * console.log('done')
  *
  */
-export function annotatedTag({ fs: _fs, onSign, dir, gitdir, ref, tagger: _tagger, message, gpgsig, object, signingKey, force, }: 
- * @param {FsClient} args.fs - a file system implementation
- * @param {SignCallback} [args.onSign] - a PGP signing implementation
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string} args.ref - What to name the tag
- * @param {string} [args.message] - The tag message to use.
- * @param {string} [args.object] - The SHA-1 object id the tag points to. (Will resolve to a SHA-1 object id if value is a ref.) By default, the commit object which is referred by the current `HEAD` is used.
- * @param {
- * @param {string} [args.tagger.name] - Default is `user.name` config.
- * @param {string} [args.tagger.email] - Default is `user.email` config.
- * @param {number} [args.tagger.timestamp] - Set the tagger timestamp field. This is the integer number of seconds since the Unix epoch (1970-01-01 00:00:00).
- * @param {number} [args.tagger.timezoneOffset] - Set the tagger timezone offset field. This is the difference, in minutes, from the current timezone to UTC. Default is `(new Date()).getTimezoneOffset()`.
-} [args.tagger] - The details about the tagger.
- * @param {string} [args.gpgsig] - The gpgsig attatched to the tag object. (Mutually exclusive with the `signingKey` option.)
- * @param {string} [args.signingKey] - Sign the tag object using this private PGP key. (Mutually exclusive with the `gpgsig` option.)
- * @param {boolean} [args.force] - Instead of throwing an error if a tag named `ref` already exists, overwrite the existing tag. Note that this option does not modify the original tag object itself.
-): Promise<void>;
+export function annotatedTag({ fs: _fs, onSign, dir, gitdir, ref, tagger: _tagger, message, gpgsig, object, signingKey, force, }): Promise<void>;
 /**
  * Create a branch
  *
@@ -782,77 +698,7 @@ export function annotatedTag({ fs: _fs, onSign, dir, gitdir, ref, tagger: _tagge
  * console.log('done')
  *
  */
-export function branch({ fs, dir, gitdir, ref, checkout, }: 
- * @param {FsClient} args.fs - a file system implementation
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string} args.ref - What to name the branch
- * @param {boolean} [args.checkout] - Update `HEAD` to point at the newly created branch
-): Promise<void>;
-/**
- * Checkout a branch
- *
- * If the branch already exists it will check out that branch. Otherwise, it will create a new remote tracking branch set to track the remote branch of that name.
- *
- * @param {object} args
- * @param {FsClient} args.fs - a file system implementation
- * @param {ProgressCallback} [args.onProgress] - optional progress event callback
- * @param {string} args.dir - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir=join(dir,'.git')] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string} [args.ref = 'HEAD'] - Source to checkout files from
- * @param {string[]} [args.filepaths] - Limit the checkout to the given files and directories
- * @param {string} [args.remote = 'origin'] - Which remote repository to use
- * @param {boolean} [args.noCheckout = false] - If true, will update HEAD but won't update the working directory
- * @param {boolean} [args.noUpdateHead] - If true, will update the working directory but won't update HEAD. Defaults to `false` when `ref` is provided, and `true` if `ref` is not provided.
- * @param {boolean} [args.dryRun = false] - If true, simulates a checkout so you can test whether it would succeed.
- * @param {boolean} [args.force = false] - If true, conflicts will be ignored and files will be overwritten regardless of local changes.
- *
- * @returns {Promise<void>} Resolves successfully when filesystem operations are complete
- *
- * @example
- * // switch to the master branch
- * await git.checkout({
- *   fs,
- *   dir: '/tutorial',
- *   ref: 'master'
- * })
- * console.log('done')
- *
- * @example
- * // restore the 'docs' and 'src/docs' folders to the way they were, overwriting any changes
- * await git.checkout({
- *   fs,
- *   dir: '/tutorial',
- *   force: true,
- *   filepaths: ['docs', 'src/docs']
- * })
- * console.log('done')
- *
- * @example
- * // restore the 'docs' and 'src/docs' folders to the way they are in the 'develop' branch, overwriting any changes
- * await git.checkout({
- *   fs,
- *   dir: '/tutorial',
- *   ref: 'develop',
- *   noUpdateHead: true,
- *   force: true,
- *   filepaths: ['docs', 'src/docs']
- * })
- * console.log('done')
- */
-export function checkout({ fs, onProgress, dir, gitdir, remote, ref: _ref, filepaths, noCheckout, noUpdateHead, dryRun, force, }: 
- * @param {FsClient} args.fs - a file system implementation
- * @param {ProgressCallback} [args.onProgress] - optional progress event callback
- * @param {string} args.dir - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string} [args.ref] - Source to checkout files from
- * @param {string[]} [args.filepaths] - Limit the checkout to the given files and directories
- * @param {string} [args.remote] - Which remote repository to use
- * @param {boolean} [args.noCheckout] - If true, will update HEAD but won't update the working directory
- * @param {boolean} [args.noUpdateHead] - If true, will update the working directory but won't update HEAD. Defaults to `false` when `ref` is provided, and `true` if `ref` is not provided.
- * @param {boolean} [args.dryRun] - If true, simulates a checkout so you can test whether it would succeed.
- * @param {boolean} [args.force] - If true, conflicts will be ignored and files will be overwritten regardless of local changes.
-): Promise<void>;
+export function branch({ fs, dir, gitdir, ref, checkout, }): Promise<void>;
 /**
  * Clone a repository
  *
@@ -894,31 +740,7 @@ export function checkout({ fs, onProgress, dir, gitdir, remote, ref: _ref, filep
  * console.log('done')
  *
  */
-export function clone({ fs, http, onProgress, onMessage, onAuth, onAuthSuccess, onAuthFailure, dir, gitdir, url, corsProxy, ref, remote, depth, since, exclude, relative, singleBranch, noCheckout, noTags, headers, }: 
-/*
- * @param {FsClient} args.fs - a file system implementation
- * @param {HttpClient} args.http - an HTTP client
- * @param {ProgressCallback} [args.onProgress] - optional progress event callback
- * @param {MessageCallback} [args.onMessage] - optional message event callback
- * @param {AuthCallback} [args.onAuth] - optional auth fill callback
- * @param {AuthFailureCallback} [args.onAuthFailure] - optional auth rejected callback
- * @param {AuthSuccessCallback} [args.onAuthSuccess] - optional auth approved callback
- * @param {string} args.dir - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string} args.url - The URL of the remote repository
- * @param {string} [args.corsProxy] - Optional [CORS proxy](https://www.npmjs.com/%40isomorphic-git/cors-proxy). Value is stored in the git config file for that repo.
- * @param {string} [args.ref] - Which branch to checkout. By default this is the designated "main branch" of the repository.
- * @param {boolean} [args.singleBranch] - Instead of the default behavior of fetching all the branches, only fetch a single branch.
- * @param {boolean} [args.noCheckout] - If true, clone will only fetch the repo, not check out a branch. Skipping checkout can save a lot of time normally spent writing files to disk.
- * @param {boolean} [args.noTags] - By default clone will fetch all tags. `noTags` disables that behavior.
- * @param {string} [args.remote] - What to name the remote that is created.
- * @param {number} [args.depth] - Integer. Determines how much of the git repository's history to retrieve
- * @param {Date} [args.since] - Only fetch commits created after the given date. Mutually exclusive with `depth`.
- * @param {string[]} [args.exclude] - A list of branches or tags. Instructs the remote server not to send us any commits reachable from these refs.
- * @param {boolean} [args.relative] - Changes the meaning of `depth` to be measured from the current shallow depth rather than from the branch tip.
- * @param {Object<string, string>} [args.headers] - Additional headers to include in HTTP requests, similar to git's `extraHeader` config
- */
-): Promise<void>;
+export function clone({ fs, http, onProgress, onMessage, onAuth, onAuthSuccess, onAuthFailure, dir, gitdir, url, corsProxy, ref, remote, depth, since, exclude, relative, singleBranch, noCheckout, noTags, headers, }): Promise<void>;
 /**
  * Create a new commit
  *
@@ -960,33 +782,7 @@ export function clone({ fs, http, onProgress, onMessage, onAuth, onAuthSuccess, 
  * console.log(sha)
  *
  */
-export function commit({ fs: _fs, onSign, dir, gitdir, message, author: _author, committer: _committer, signingKey, dryRun, noUpdateBranch, ref, parent, tree, }: 
- /*
- * @param {FsClient} args.fs - a file system implementation
- * @param {SignCallback} [args.onSign] - a PGP signing implementation
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string} args.message - The commit message to use.
- * @param {
- * @param {string} [args.author.name] - Default is `user.name` config.
- * @param {string} [args.author.email] - Default is `user.email` config.
- * @param {number} [args.author.timestamp] - Set the author timestamp field. This is the integer number of seconds since the Unix epoch (1970-01-01 00:00:00).
- * @param {number} [args.author.timezoneOffset] - Set the author timezone offset field. This is the difference, in minutes, from the current timezone to UTC. Default is `(new Date()).getTimezoneOffset()`.
-} [args.author] - The details about the author.
- * @param {
- * @param {string} [args.committer.name] - Default is `user.name` config.
- * @param {string} [args.committer.email] - Default is `user.email` config.
- * @param {number} [args.committer.timestamp] - Set the committer timestamp field. This is the integer number of seconds since the Unix epoch (1970-01-01 00:00:00).
- * @param {number} [args.committer.timezoneOffset] - Set the committer timezone offset field. This is the difference, in minutes, from the current timezone to UTC. Default is `(new Date()).getTimezoneOffset()`.
-} [args.committer] - The details about the commit committer, in the same format as the author parameter. If not specified, the author details are used.
- * @param {string} [args.signingKey] - Sign the tag object using this private PGP key.
- * @param {boolean} [args.dryRun] - If true, simulates making a commit so you can test whether it would succeed. Implies `noUpdateBranch`.
- * @param {boolean} [args.noUpdateBranch] - If true, does not update the branch pointer after creating the commit.
- * @param {string} [args.ref] - The fully expanded name of the branch to commit to. Default is the current branch pointed to by HEAD. (TODO: fix it so it can expand branch names without throwing if the branch doesn't exist yet.)
- * @param {string[]} [args.parent] - The SHA-1 object ids of the commits to use as parents. If not specified, the commit pointed to by `ref` is used.
- * @param {string} [args.tree] - The SHA-1 object id of the tree to use. If not specified, a new tree object is created from the current git index.
- */
-): Promise<string>;
+export function commit({ fs: _fs, onSign, dir, gitdir, message, author: _author, committer: _committer, signingKey, dryRun, noUpdateBranch, ref, parent, tree, }): Promise<string>;
 /**
  * Get the name of the branch currently pointed to by .git/HEAD
  *
@@ -1009,13 +805,7 @@ export function commit({ fs: _fs, onSign, dir, gitdir, message, author: _author,
  * console.log(branch)
  *
  */
-export function currentBranch({ fs, dir, gitdir, fullname, test, }: 
- * @param {FsClient} args.fs - a file system implementation
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {boolean} [args.fullname] - Return the full path (e.g. "refs/heads/master") instead of the abbreviated form.
- * @param {boolean} [args.test] - If the current branch doesn't actually exist (such as 'master' right after git init) then return `undefined`.
-): Promise<string | void>;
+export function currentBranch({ fs, dir, gitdir, fullname, test, }): Promise<string | void>;
 /**
  * Delete a local branch
  *
@@ -1078,12 +868,7 @@ export function deleteRef({ fs, dir, gitdir, ref }:
  * console.log('done')
  *
  */
-export function deleteRemote({ fs, dir, gitdir, remote, }: 
- * @param {FsClient} args.fs - a file system implementation
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string} args.remote - The name of the remote to delete
-): Promise<void>;
+export function deleteRemote({ fs, dir, gitdir, remote, }): Promise<void>;
 /**
  * Delete a local tag ref
  *
@@ -1100,12 +885,7 @@ export function deleteRemote({ fs, dir, gitdir, remote, }:
  * console.log('done')
  *
  */
-export function deleteTag({ fs, dir, gitdir, ref }: 
- * @param {FsClient} args.fs - a file system implementation
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string} args.ref - The tag to delete
-): Promise<void>;
+export function deleteTag({ fs, dir, gitdir, ref }): Promise<void>;
 /**
  * Expand and resolve a short oid into a full oid
  *
@@ -1122,12 +902,7 @@ export function deleteTag({ fs, dir, gitdir, ref }:
  * console.log(oid)
  *
  */
-export function expandOid({ fs, dir, gitdir, oid }: 
- * @param {FsClient} args.fs - a file system implementation
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string} args.oid - The shortened oid prefix to expand (like "0414d2a")
-): Promise<string>;
+export function expandOid({ fs, dir, gitdir, oid }): Promise<string>;
 /**
  * Expand an abbreviated ref to its full name
  *
@@ -1144,12 +919,7 @@ export function expandOid({ fs, dir, gitdir, oid }:
  * console.log(fullRef)
  *
  */
-export function expandRef({ fs, dir, gitdir, ref }: 
- * @param {FsClient} args.fs - a file system implementation
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string} args.ref - The ref to expand (like "v1.0.0")
-): Promise<string>;
+export function expandRef({ fs, dir, gitdir, ref }): Promise<string>;
 /**
  * Like `pull`, but hard-coded with `fastForward: true` so there is no need for an `author` parameter.
  *
@@ -1184,24 +954,7 @@ export function expandRef({ fs, dir, gitdir, ref }:
  * console.log('done')
  *
  */
-export function fastForward({ fs, http, onProgress, onMessage, onAuth, onAuthSuccess, onAuthFailure, dir, gitdir, ref, url, remote, remoteRef, corsProxy, singleBranch, headers, }: 
- * @param {FsClient} args.fs - a file system client
- * @param {HttpClient} args.http - an HTTP client
- * @param {ProgressCallback} [args.onProgress] - optional progress event callback
- * @param {MessageCallback} [args.onMessage] - optional message event callback
- * @param {AuthCallback} [args.onAuth] - optional auth fill callback
- * @param {AuthFailureCallback} [args.onAuthFailure] - optional auth rejected callback
- * @param {AuthSuccessCallback} [args.onAuthSuccess] - optional auth approved callback
- * @param {string} args.dir ] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string} [args.ref] - Which branch to merge into. By default this is the currently checked out branch.
- * @param {string} [args.url] - (Added in 1.1.0) The URL of the remote repository. The default is the value set in the git config for that remote.
- * @param {string} [args.remote] - (Added in 1.1.0) If URL is not specified, determines which remote to use.
- * @param {string} [args.remoteRef] - (Added in 1.1.0) The name of the branch on the remote to fetch. By default this is the configured remote tracking branch.
- * @param {string} [args.corsProxy] - Optional [CORS proxy](https://www.npmjs.com/%40isomorphic-git/cors-proxy). Overrides value in repo config.
- * @param {boolean} [args.singleBranch] - Instead of the default behavior of fetching all the branches, only fetch a single branch.
- * @param {Object<string, string>} [args.headers] - Additional headers to include in HTTP requests, similar to git's `extraHeader` config
-): Promise<void>;
+export function fastForward({ fs, http, onProgress, onMessage, onAuth, onAuthSuccess, onAuthFailure, dir, gitdir, ref, url, remote, remoteRef, corsProxy, singleBranch, headers, }): Promise<void>;
 /**
  *
  * @typedef {object} FetchResult - The object returned has the following schema:
@@ -1258,31 +1011,7 @@ export function fastForward({ fs, http, onProgress, onMessage, onAuth, onAuthSuc
  * console.log(result)
  *
  */
-export function fetch({ fs, http, onProgress, onMessage, onAuth, onAuthSuccess, onAuthFailure, dir, gitdir, ref, remote, remoteRef, url, corsProxy, depth, since, exclude, relative, tags, singleBranch, headers, prune, pruneTags, }: 
- * @param {FsClient} args.fs - a file system client
- * @param {HttpClient} args.http - an HTTP client
- * @param {ProgressCallback} [args.onProgress] - optional progress event callback
- * @param {MessageCallback} [args.onMessage] - optional message event callback
- * @param {AuthCallback} [args.onAuth] - optional auth fill callback
- * @param {AuthFailureCallback} [args.onAuthFailure] - optional auth rejected callback
- * @param {AuthSuccessCallback} [args.onAuthSuccess] - optional auth approved callback
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string} [args.url] - The URL of the remote repository. The default is the value set in the git config for that remote.
- * @param {string} [args.remote] - If URL is not specified, determines which remote to use.
- * @param {boolean} [args.singleBranch] - Instead of the default behavior of fetching all the branches, only fetch a single branch.
- * @param {string} [args.ref] - Which branch to fetch if `singleBranch` is true. By default this is the current branch or the remote's default branch.
- * @param {string} [args.remoteRef] - The name of the branch on the remote to fetch if `singleBranch` is true. By default this is the configured remote tracking branch.
- * @param {boolean} [args.tags] - Also fetch tags
- * @param {number} [args.depth] - Integer. Determines how much of the git repository's history to retrieve
- * @param {boolean} [args.relative] - Changes the meaning of `depth` to be measured from the current shallow depth rather than from the branch tip.
- * @param {Date} [args.since] - Only fetch commits created after the given date. Mutually exclusive with `depth`.
- * @param {string[]} [args.exclude] - A list of branches or tags. Instructs the remote server not to send us any commits reachable from these refs.
- * @param {boolean} [args.prune] - Delete local remote-tracking branches that are not present on the remote
- * @param {boolean} [args.pruneTags] - Prune local tags that don’t exist on the remote, and force-update those tags that differ
- * @param {string} [args.corsProxy] - Optional [CORS proxy](https://www.npmjs.com/%40isomorphic-git/cors-proxy). Overrides value in repo config.
- * @param {Object<string, string>} [args.headers] - Additional headers to include in HTTP requests, similar to git's `extraHeader` config
-): Promise<FetchResult>;
+export function fetch({ fs, http, onProgress, onMessage, onAuth, onAuthSuccess, onAuthFailure, dir, gitdir, ref, remote, remoteRef, url, corsProxy, depth, since, exclude, relative, tags, singleBranch, headers, prune, pruneTags, }): Promise<FetchResult>;
 /**
  * Find the merge base for a set of commits
  *
@@ -1293,12 +1022,7 @@ export function fetch({ fs, http, onProgress, onMessage, onAuth, onAuthSuccess, 
  * @param {string[]} args.oids - Which commits
  *
  */
-export function findMergeBase({ fs, dir, gitdir, oids, }: 
- * @param {FsClient} args.fs - a file system client
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string[]} args.oids - Which commits
-): Promise<any[]>;
+export function findMergeBase({ fs, dir, gitdir, oids, }): Promise<any[]>;
 /**
  * Find the root git directory
  *
@@ -1319,10 +1043,7 @@ export function findMergeBase({ fs, dir, gitdir, oids, }:
  * console.log(gitroot)
  *
  */
-export function findRoot({ fs, filepath }: 
- * @param {FsClient} args.fs - a file system client
- * @param {string} args.filepath - The file directory to start searching in.
-): Promise<string>;
+export function findRoot({ fs, filepath }): Promise<string>;
 /**
  * Read an entry from the git config files.
  *
@@ -1348,12 +1069,7 @@ export function findRoot({ fs, filepath }:
  * console.log(value)
  *
  */
-export function getConfig({ fs, dir, gitdir, path }: 
- * @param {FsClient} args.fs - a file system implementation
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string} args.path - The key of the git config entry
-): Promise<any>;
+export function getConfig({ fs, dir, gitdir, path }): Promise<any>;
 /**
  * Read a multi-valued entry from the git config files.
  *
@@ -1370,12 +1086,7 @@ export function getConfig({ fs, dir, gitdir, path }:
  * @returns {Promise<Array<any>>} Resolves with the config value
  *
  */
-export function getConfigAll({ fs, dir, gitdir, path, }: 
- * @param {FsClient} args.fs - a file system implementation
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string} args.path - The key of the git config entry
-): Promise<Array<any>>;
+export function getConfigAll({ fs, dir, gitdir, path, }): Promise<Array<any>>;
 /**
  *
  * @typedef {Object} GetRemoteInfoResult - The object returned has the following schema:
@@ -1414,16 +1125,7 @@ export function getConfigAll({ fs, dir, gitdir, path, }:
  * console.log(info);
  *
  */
-export function getRemoteInfo({ http, onAuth, onAuthSuccess, onAuthFailure, corsProxy, url, headers, forPush, }: 
- * @param {HttpClient} args.http - an HTTP client
- * @param {AuthCallback} [args.onAuth] - optional auth fill callback
- * @param {AuthFailureCallback} [args.onAuthFailure] - optional auth rejected callback
- * @param {AuthSuccessCallback} [args.onAuthSuccess] - optional auth approved callback
- * @param {string} args.url - The URL of the remote repository. Will be gotten from gitconfig if absent.
- * @param {string} [args.corsProxy] - Optional [CORS proxy](https://www.npmjs.com/%40isomorphic-git/cors-proxy). Overrides value in repo config.
- * @param {boolean} [args.forPush] - By default, the command queries the 'fetch' capabilities. If true, it will ask for the 'push' capabilities.
- * @param {Object<string, string>} [args.headers] - Additional headers to include in HTTP requests, similar to git's `extraHeader` config
-): Promise<GetRemoteInfoResult>;
+export function getRemoteInfo({ http, onAuth, onAuthSuccess, onAuthFailure, corsProxy, url, headers, forPush, }): Promise<GetRemoteInfoResult>;
 /**
  *
  * @typedef {object} HashBlobResult - The object returned has the following schema:
@@ -1453,9 +1155,7 @@ export function getRemoteInfo({ http, onAuth, onAuthSuccess, onAuthFailure, cors
  * console.log('format', format)
  *
  */
-export function hashBlob({ object }: 
- * @param {Uint8Array | string} args.object - The object to write. If `object` is a String then it will be converted to a Uint8Array using UTF-8 encoding.
-): Promise<HashBlobResult>;
+export function hashBlob({ object }): Promise<HashBlobResult>;
 /**
  * Create the .idx file for a given .pack file
  *
@@ -1484,13 +1184,7 @@ export function hashBlob({ object }:
  * console.log(oids)
  *
  */
-export function indexPack({ fs, onProgress, dir, gitdir, filepath, }: 
- * @param {FsClient} args.fs - a file system client
- * @param {ProgressCallback} [args.onProgress] - optional progress event callback
- * @param {string} args.dir - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string} args.filepath - The path to the .pack file to index
-): Promise<{
+export function indexPack({ fs, onProgress, dir, gitdir, filepath, }): Promise<{
     oids: string[];
 }>;
 /**
@@ -1534,14 +1228,7 @@ export function init({ fs, bare, dir, gitdir, }:
  * await git.isDescendent({ fs, dir: '/tutorial', oid, ancestor, depth: -1 })
  *
  */
-export function isDescendent({ fs, dir, gitdir, oid, ancestor, depth, }: 
- * @param {FsClient} args.fs - a file system client
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string} args.oid - The descendent commit
- * @param {string} args.ancestor - The (proposed) ancestor commit
- * @param {number} [args.depth] - Maximum depth to search before giving up. -1 means no maximum depth.
-): Promise<boolean>;
+export function isDescendent({ fs, dir, gitdir, oid, ancestor, depth, }): Promise<boolean>;
 /**
  * List branches
  *
@@ -1566,12 +1253,7 @@ export function isDescendent({ fs, dir, gitdir, oid, ancestor, depth, }:
  * console.log(remoteBranches)
  *
  */
-export function listBranches({ fs, dir, gitdir, remote, }: 
- * @param {FsClient} args.fs - a file system client
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string} [args.remote] - Instead of the branches in `refs/heads`, list the branches in `refs/remotes/${remote}`.
-): Promise<Array<string>>;
+export function listBranches({ fs, dir, gitdir, remote, }): Promise<Array<string>>;
 /**
  * List all the files in the git index or a commit
  *
@@ -1595,12 +1277,7 @@ export function listBranches({ fs, dir, gitdir, remote, }:
  * console.log(files)
  *
  */
-export function listFiles({ fs, dir, gitdir, ref }: 
- * @param {FsClient} args.fs - a file system client
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string} [args.ref] - Return a list of all the files in the commit at `ref` instead of the files currently in the git index (aka staging area)
-): Promise<Array<string>>;
+export function listFiles({ fs, dir, gitdir, ref }): Promise<Array<string>>;
 /**
  * List all the object notes
  *
@@ -1612,12 +1289,7 @@ export function listFiles({ fs, dir, gitdir, ref }:
  *
  * @returns {Promise<Array<{target: string, note: string}>>} Resolves successfully with an array of entries containing SHA-1 object ids of the note and the object the note targets
  */
-export function listNotes({ fs, dir, gitdir, ref, }: 
- * @param {FsClient} args.fs - a file system client
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string} [args.ref] - The notes ref to look under
-): Promise<Array<{
+export function listNotes({ fs, dir, gitdir, ref, }): Promise<Array<{
     target: string;
     note: string;
 }>>;
@@ -1689,14 +1361,7 @@ export function listTags({ fs, dir, gitdir }:
  * console.log(commits)
  *
  */
-export function log({ fs, dir, gitdir, ref, depth, since, }: 
- * @param {FsClient} args.fs - a file system client
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string} [args.ref] - The commit to begin walking backwards through the history from
- * @param {number} [args.depth] - Limit the number of commits returned. No limit by default.
- * @param {Date} [args.since] - Return history newer than the given date. Can be combined with `depth` to get whichever is shorter.
-): Promise<Array<ReadCommitResult>>;
+export function log({ fs, dir, gitdir, ref, depth, since, }): Promise<Array<ReadCommitResult>>;
 /**
  *
  * @typedef {Object} MergeResult - Returns an object with a schema like this:
@@ -1755,31 +1420,7 @@ export function log({ fs, dir, gitdir, ref, depth, since, }:
  * console.log(m)
  *
  */
-export function merge({ fs: _fs, onSign, dir, gitdir, ours, theirs, fastForwardOnly, dryRun, noUpdateBranch, message, author: _author, committer: _committer, signingKey, }: 
- * @param {FsClient} args.fs - a file system client
- * @param {SignCallback} [args.onSign] - a PGP signing implementation
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string} [args.ours] - The branch receiving the merge. If undefined, defaults to the current branch.
- * @param {string} args.theirs - The branch to be merged
- * @param {boolean} [args.fastForwardOnly] - If true, then non-fast-forward merges will throw an Error instead of performing a merge.
- * @param {boolean} [args.dryRun] - If true, simulates a merge so you can test whether it would succeed.
- * @param {boolean} [args.noUpdateBranch] - If true, does not update the branch pointer after creating the commit.
- * @param {string} [args.message] - Overrides the default auto-generated merge commit message
- * @param {
- * @param {string} [args.author.name] - Default is `user.name` config.
- * @param {string} [args.author.email] - Default is `user.email` config.
- * @param {number} [args.author.timestamp] - Set the author timestamp field. This is the integer number of seconds since the Unix epoch (1970-01-01 00:00:00).
- * @param {number} [args.author.timezoneOffset] - Set the author timezone offset field. This is the difference, in minutes, from the current timezone to UTC. Default is `(new Date()).getTimezoneOffset()`.
-} [args.author] - passed to [commit](commit.md) when creating a merge commit
- * @param {
- * @param {string} [args.committer.name] - Default is `user.name` config.
- * @param {string} [args.committer.email] - Default is `user.email` config.
- * @param {number} [args.committer.timestamp] - Set the committer timestamp field. This is the integer number of seconds since the Unix epoch (1970-01-01 00:00:00).
- * @param {number} [args.committer.timezoneOffset] - Set the committer timezone offset field. This is the difference, in minutes, from the current timezone to UTC. Default is `(new Date()).getTimezoneOffset()`.
-} [args.committer] - passed to [commit](commit.md) when creating a merge commit
- * @param {string} [args.signingKey] - passed to [commit](commit.md) when creating a merge commit
-): Promise<MergeResult>;
+export function merge({ fs: _fs, onSign, dir, gitdir, ours, theirs, fastForwardOnly, dryRun, noUpdateBranch, message, author: _author, committer: _committer, signingKey, }): Promise<MergeResult>;
 /**
  *
  * @typedef {Object} PackObjectsResult The packObjects command returns an object with two properties:
@@ -1809,13 +1450,7 @@ export function merge({ fs: _fs, onSign, dir, gitdir, ours, theirs, fastForwardO
  * console.log(packfile)
  *
  */
-export function packObjects({ fs, dir, gitdir, oids, write, }: 
- * @param {FsClient} args.fs - a file system client
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string[]} args.oids - An array of SHA-1 object ids to be included in the packfile
- * @param {boolean} [args.write] - Whether to save the packfile to disk or not
-): Promise<PackObjectsResult>;
+export function packObjects({ fs, dir, gitdir, oids, write, }): Promise<PackObjectsResult>;
 /**
  * Fetch and merge commits from a remote repository
  *
@@ -1862,38 +1497,7 @@ export function packObjects({ fs, dir, gitdir, oids, write, }:
  * console.log('done')
  *
  */
-export function pull({ fs: _fs, http, onProgress, onMessage, onAuth, onAuthSuccess, onAuthFailure, dir, gitdir, ref, url, remote, remoteRef, fastForwardOnly, corsProxy, singleBranch, headers, author: _author, committer: _committer, signingKey, }: 
- * @param {FsClient} args.fs - a file system client
- * @param {HttpClient} args.http - an HTTP client
- * @param {ProgressCallback} [args.onProgress] - optional progress event callback
- * @param {MessageCallback} [args.onMessage] - optional message event callback
- * @param {AuthCallback} [args.onAuth] - optional auth fill callback
- * @param {AuthFailureCallback} [args.onAuthFailure] - optional auth rejected callback
- * @param {AuthSuccessCallback} [args.onAuthSuccess] - optional auth approved callback
- * @param {string} args.dir ] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string} [args.ref] - Which branch to merge into. By default this is the currently checked out branch.
- * @param {string} [args.url] - (Added in 1.1.0) The URL of the remote repository. The default is the value set in the git config for that remote.
- * @param {string} [args.remote] - (Added in 1.1.0) If URL is not specified, determines which remote to use.
- * @param {string} [args.remoteRef] - (Added in 1.1.0) The name of the branch on the remote to fetch. By default this is the configured remote tracking branch.
- * @param {string} [args.corsProxy] - Optional [CORS proxy](https://www.npmjs.com/%40isomorphic-git/cors-proxy). Overrides value in repo config.
- * @param {boolean} [args.singleBranch] - Instead of the default behavior of fetching all the branches, only fetch a single branch.
- * @param {boolean} [args.fastForwardOnly] - Only perform simple fast-forward merges. (Don't create merge commits.)
- * @param {Object<string, string>} [args.headers] - Additional headers to include in HTTP requests, similar to git's `extraHeader` config
- * @param {
- * @param {string} [args.author.name] - Default is `user.name` config.
- * @param {string} [args.author.email] - Default is `user.email` config.
- * @param {number} [args.author.timestamp] - Set the author timestamp field. This is the integer number of seconds since the Unix epoch (1970-01-01 00:00:00).
- * @param {number} [args.author.timezoneOffset] - Set the author timezone offset field. This is the difference, in minutes, from the current timezone to UTC. Default is `(new Date()).getTimezoneOffset()`.
-} [args.author] - The details about the author.
- * @param {
- * @param {string} [args.committer.name] - Default is `user.name` config.
- * @param {string} [args.committer.email] - Default is `user.email` config.
- * @param {number} [args.committer.timestamp] - Set the committer timestamp field. This is the integer number of seconds since the Unix epoch (1970-01-01 00:00:00).
- * @param {number} [args.committer.timezoneOffset] - Set the committer timezone offset field. This is the difference, in minutes, from the current timezone to UTC. Default is `(new Date()).getTimezoneOffset()`.
-} [args.committer] - The details about the commit committer, in the same format as the author parameter. If not specified, the author details are used.
- * @param {string} [args.signingKey] - passed to [commit](commit.md) when creating a merge commit
-): Promise<void>;
+export function pull({ fs: _fs, http, onProgress, onMessage, onAuth, onAuthSuccess, onAuthFailure, dir, gitdir, ref, url, remote, remoteRef, fastForwardOnly, corsProxy, singleBranch, headers, author: _author, committer: _committer, signingKey, }): Promise<void>;
 /**
  * Push a branch or tag
  *
@@ -1940,27 +1544,7 @@ export function pull({ fs: _fs, http, onProgress, onMessage, onAuth, onAuthSucce
  * console.log(pushResult)
  *
  */
-export function push({ fs, http, onProgress, onMessage, onAuth, onAuthSuccess, onAuthFailure, dir, gitdir, ref, remoteRef, remote, url, force, delete: _delete, corsProxy, headers, }: 
- /*
- * @param {FsClient} args.fs - a file system client
- * @param {HttpClient} args.http - an HTTP client
- * @param {ProgressCallback} [args.onProgress] - optional progress event callback
- * @param {MessageCallback} [args.onMessage] - optional message event callback
- * @param {AuthCallback} [args.onAuth] - optional auth fill callback
- * @param {AuthFailureCallback} [args.onAuthFailure] - optional auth rejected callback
- * @param {AuthSuccessCallback} [args.onAuthSuccess] - optional auth approved callback
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string} [args.ref] - Which branch to push. By default this is the currently checked out branch.
- * @param {string} [args.url] - The URL of the remote repository. The default is the value set in the git config for that remote.
- * @param {string} [args.remote] - If URL is not specified, determines which remote to use.
- * @param {string} [args.remoteRef] - The name of the receiving branch on the remote. By default this is the configured remote tracking branch.
- * @param {boolean} [args.force] - If true, behaves the same as `git push --force`
- * @param {boolean} [args.delete] - If true, delete the remote ref
- * @param {string} [args.corsProxy] - Optional [CORS proxy](https://www.npmjs.com/%40isomorphic-git/cors-proxy). Overrides value in repo config.
- * @param {Object<string, string>} [args.headers] - Additional headers to include in HTTP requests, similar to git's `extraHeader` config
- */
-): Promise<PushResult>;
+export function push({ fs, http, onProgress, onMessage, onAuth, onAuthSuccess, onAuthFailure, dir, gitdir, ref, remoteRef, remote, url, force, delete: _delete, corsProxy, headers, }): Promise<PushResult>;
 /**
  *
  * @typedef {Object} ReadBlobResult - The object returned has the following schema:
@@ -1994,13 +1578,7 @@ export function push({ fs, http, onProgress, onMessage, onAuth, onAuthSuccess, o
  * console.log(Buffer.from(blob).toString('utf8'))
  *
  */
-export function readBlob({ fs, dir, gitdir, oid, filepath, }: 
- * @param {FsClient} args.fs - a file system client
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string} args.oid - The SHA-1 object id to get. Annotated tags, commits, and trees are peeled.
- * @param {string} [args.filepath] - Don't return the object with `oid` itself, but resolve `oid` to a tree and then return the blob object at that filepath.
-): Promise<ReadBlobResult>;
+export function readBlob({ fs, dir, gitdir, oid, filepath, }): Promise<ReadBlobResult>;
 /**
  * Read a commit object directly
  *
@@ -2023,10 +1601,6 @@ export function readBlob({ fs, dir, gitdir, oid, filepath, }:
  *
  */
 export function readCommit({ fs, dir, gitdir, oid }: 
- * @param {FsClient} args.fs - a file system client
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string} args.oid - The SHA-1 object id to get. Annotated tags are peeled.
 ): Promise<ReadCommitResult>;
 /**
  * Read the contents of a note
@@ -2040,13 +1614,7 @@ export function readCommit({ fs, dir, gitdir, oid }:
  *
  * @returns {Promise<Uint8Array>} Resolves successfully with note contents as a Buffer.
  */
-export function readNote({ fs, dir, gitdir, ref, oid, }: 
- * @param {FsClient} args.fs - a file system client
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string} [args.ref] - The notes ref to look under
- * @param {string} args.oid - The SHA-1 object id of the object to get the note for.
-): Promise<Uint8Array>;
+export function readNote({ fs, dir, gitdir, ref, oid, }): Promise<Uint8Array>;
 /**
  *
  * @typedef {Object} DeflatedObject
@@ -2226,13 +1794,6 @@ export function readNote({ fs, dir, gitdir, ref, oid, }:
  *
  */
 export function readObject({ fs: _fs, dir, gitdir, oid, format, filepath, encoding, }: 
- * @param {FsClient} args.fs - a file system client
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string} args.oid - The SHA-1 object id to get
- * @param {'deflated' | 'wrapped' | 'content' | 'parsed'} [args.format] - What format to return the object in. The choices are described in more detail below.
- * @param {string} [args.filepath] - Don't return the object with `oid` itself, but resolve `oid` to a tree and then return the object at that filepath. To return the root directory of a tree set filepath to `''`
- * @param {string} [args.encoding] - A convenience argument that only affects blobs. Instead of returning `object` as a buffer, it returns a string parsed using the given encoding.
 ): Promise<ReadObjectResult>;
 /**
  *
@@ -2256,10 +1817,6 @@ export function readObject({ fs: _fs, dir, gitdir, oid, format, filepath, encodi
  *
  */
 export function readTag({ fs, dir, gitdir, oid }: 
- * @param {FsClient} args.fs - a file system client
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string} args.oid - The SHA-1 object id to get
 ): Promise<ReadTagResult>;
 /**
  *
@@ -2283,13 +1840,7 @@ export function readTag({ fs, dir, gitdir, oid }:
  * @see TreeEntry
  *
  */
-export function readTree({ fs, dir, gitdir, oid, filepath, }: 
- * @param {FsClient} args.fs - a file system client
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string} args.oid - The SHA-1 object id to get. Annotated tags and commits are peeled.
- * @param {string} [args.filepath] - Don't return the object with `oid` itself, but resolve `oid` to a tree and then return the tree object at that filepath.
-): Promise<ReadTreeResult>;
+export function readTree({ fs, dir, gitdir, oid, filepath, }): Promise<ReadTreeResult>;
 /**
  * Remove a file from the git index (aka staging area)
  *
@@ -2308,12 +1859,7 @@ export function readTree({ fs, dir, gitdir, oid, filepath, }:
  * console.log('done')
  *
  */
-export function remove({ fs: _fs, dir, gitdir, filepath, }: 
- * @param {FsClient} args.fs - a file system client
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string} args.filepath - The path to the file to remove from the index
-): Promise<void>;
+export function remove({ fs: _fs, dir, gitdir, filepath, }): Promise<void>;
 /**
  * Remove an object note
  *
@@ -2338,27 +1884,7 @@ export function remove({ fs: _fs, dir, gitdir, filepath, }:
  *
  * @returns {Promise<string>} Resolves successfully with the SHA-1 object id of the commit object for the note removal.
  */
-export function removeNote({ fs: _fs, onSign, dir, gitdir, ref, oid, author: _author, committer: _committer, signingKey, }: 
- * @param {FsClient} args.fs - a file system client
- * @param {SignCallback} [args.onSign] - a PGP signing implementation
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string} [args.ref] - The notes ref to look under
- * @param {string} args.oid - The SHA-1 object id of the object to remove the note from.
- * @param {
- * @param {string} [args.author.name] - Default is `user.name` config.
- * @param {string} [args.author.email] - Default is `user.email` config.
- * @param {number} [args.author.timestamp] - Set the author timestamp field. This is the integer number of seconds since the Unix epoch (1970-01-01 00:00:00).
- * @param {number} [args.author.timezoneOffset] - Set the author timezone offset field. This is the difference, in minutes, from the current timezone to UTC. Default is `(new Date()).getTimezoneOffset()`.
-} [args.author] - The details about the author.
- * @param {
- * @param {string} [args.committer.name] - Default is `user.name` config.
- * @param {string} [args.committer.email] - Default is `user.email` config.
- * @param {number} [args.committer.timestamp] - Set the committer timestamp field. This is the integer number of seconds since the Unix epoch (1970-01-01 00:00:00).
- * @param {number} [args.committer.timezoneOffset] - Set the committer timezone offset field. This is the difference, in minutes, from the current timezone to UTC. Default is `(new Date()).getTimezoneOffset()`.
-} [args.committer] - The details about the note committer, in the same format as the author parameter. If not specified, the author details are used.
- * @param {string} [args.signingKey] - Sign the tag object using this private PGP key.
-): Promise<string>;
+export function removeNote({ fs: _fs, onSign, dir, gitdir, ref, oid, author: _author, committer: _committer, signingKey, }): Promise<string>;
 /**
  * Reset a file in the git index (aka staging area)
  *
@@ -2378,13 +1904,7 @@ export function removeNote({ fs: _fs, onSign, dir, gitdir, ref, oid, author: _au
  * console.log('done')
  *
  */
-export function resetIndex({ fs: _fs, dir, gitdir, filepath, ref, }: 
- * @param {FsClient} args.fs - a file system client
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string} args.filepath - The path to the file to reset in the index
- * @param {string} [args.ref] - A ref to the commit to use
-): Promise<void>;
+export function resetIndex({ fs: _fs, dir, gitdir, filepath, ref, }): Promise<void>;
 /**
  * Get the value of a symbolic ref or resolve a ref to its SHA-1 object id
  *
@@ -2404,13 +1924,7 @@ export function resetIndex({ fs: _fs, dir, gitdir, filepath, ref, }:
  * console.log(currentBranch)
  *
  */
-export function resolveRef({ fs, dir, gitdir, ref, depth, }: 
- * @param {FsClient} args.fs - a file system client
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string} args.ref - The ref to resolve
- * @param {number} [args.depth] - How many symbolic references to follow before returning
-): Promise<string>;
+export function resolveRef({ fs, dir, gitdir, ref, depth, }): Promise<string>;
 /**
  * Write an entry to the git config files.
  *
@@ -2453,14 +1967,7 @@ export function resolveRef({ fs, dir, gitdir, ref, depth, }:
  * file = await fs.promises.readFile('/tutorial/.git/config', 'utf8')
  * console.log(file)
  */
-export function setConfig({ fs: _fs, dir, gitdir, path, value, append, }: 
- * @param {FsClient} args.fs - a file system implementation
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string} args.path - The key of the git config entry
- * @param {string | boolean | number | void} args.value - A value to store at that path. (Use `undefined` as the value to delete a config entry.)
- * @param {boolean} [args.append] - If true, will append rather than replace when setting (use with multi-valued config options).
-): Promise<void>;
+export function setConfig({ fs: _fs, dir, gitdir, path, value, append, }): Promise<void>;
 /**
  * Tell whether a file has been changed
  *
@@ -2495,12 +2002,7 @@ export function setConfig({ fs: _fs, dir, gitdir, path, value, append, }:
  * console.log(status)
  *
  */
-export function status({ fs: _fs, dir, gitdir, filepath, }: 
- * @param {FsClient} args.fs - a file system client
- * @param {string} args.dir - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string} args.filepath - The path to the file to query
-): Promise<'ignored' | 'unmodified' | '*modified' | '*deleted' | '*added' | 'absent' | 'modified' | 'deleted' | 'added' | '*unmodified' | '*absent' | '*undeleted' | '*undeletemodified'>;
+export function status({ fs: _fs, dir, gitdir, filepath, }): Promise<'ignored' | 'unmodified' | '*modified' | '*deleted' | '*added' | 'absent' | 'modified' | 'deleted' | 'added' | '*unmodified' | '*absent' | '*undeleted' | '*undeletemodified'>;
 /**
  * Efficiently get the status of multiple files at once.
  *
@@ -2640,14 +2142,7 @@ export function status({ fs: _fs, dir, gitdir, filepath, }:
  * @returns {Promise<Array<StatusRow>>} Resolves with a status matrix, described below.
  * @see StatusRow
  */
-export function statusMatrix({ fs: _fs, dir, gitdir, ref, filepaths, filter, }: 
- * @param {FsClient} args.fs - a file system client
- * @param {string} args.dir - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string} [args.ref] - Optionally specify a different commit to compare against the workdir and stage instead of the HEAD
- * @param {string[]} [args.filepaths] - Limit the query to the given files and directories
- * @param {function(string):boolean} [args.filter] - Filter the results to only those whose filepath matches a function.
-): Promise<Array<StatusRow>>;
+export function statusMatrix({ fs: _fs, dir, gitdir, ref, filepaths, filter, }): Promise<Array<StatusRow>>;
 /**
  * Create a lightweight tag
  *
@@ -2666,14 +2161,7 @@ export function statusMatrix({ fs: _fs, dir, gitdir, ref, filepaths, filter, }:
  * console.log('done')
  *
  */
-export function tag({ fs: _fs, dir, gitdir, ref, object, force, }: 
- * @param {FsClient} args.fs - a file system client
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string} args.ref - What to name the tag
- * @param {string} [args.object] - What oid the tag refers to. (Will resolve to oid if value is a ref.) By default, the commit object which is referred by the current `HEAD` is used.
- * @param {boolean} [args.force] - Instead of throwing an error if a tag named `ref` already exists, overwrite the existing tag.
-): Promise<void>;
+export function tag({ fs: _fs, dir, gitdir, ref, object, force, }): Promise<void>;
 /**
  * Return the version number of isomorphic-git
  *
@@ -2925,17 +2413,7 @@ export function version(): string;
  *
  * @returns {Promise<any>} The finished tree-walking result
  */
-export function walk({ fs, dir, gitdir, trees, map, reduce, iterate, }: 
- /*
- * @param {FsClient} args.fs - a file system client
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {Walker[]} args.trees - The trees you want to traverse
- * @param {WalkerMap} [args.map] - Transform `WalkerEntry`s into a result form
- * @param {WalkerReduce} [args.reduce] - Control how mapped entries are combined with their parent result
- * @param {WalkerIterate} [args.iterate] - Fine-tune how entries within a tree are iterated over
- */
-): Promise<any>;
+export function walk({ fs, dir, gitdir, trees, map, reduce, iterate, }): Promise<any>;
 /**
  * Write a blob object directly
  *
@@ -2958,12 +2436,7 @@ export function walk({ fs, dir, gitdir, trees, map, reduce, iterate, }:
  * console.log('oid', oid) // should be 'e69de29bb2d1d6434b8b29ae775ad8c2e48c5391'
  *
  */
-export function writeBlob({ fs, dir, gitdir, blob }: 
- * @param {FsClient} args.fs - a file system client
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {Uint8Array} args.blob - The blob object to write
-): Promise<string>;
+export function writeBlob({ fs, dir, gitdir, blob }): Promise<string>;
 /**
  * Write a commit object directly
  *
@@ -2977,12 +2450,7 @@ export function writeBlob({ fs, dir, gitdir, blob }:
  * @see CommitObject
  *
  */
-export function writeCommit({ fs, dir, gitdir, commit, }: 
- * @param {FsClient} args.fs - a file system client
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {CommitObject} args.commit - The object to write
-): Promise<string>;
+export function writeCommit({ fs, dir, gitdir, commit, }): Promise<string>;
 /**
  * Write a git object directly
  *
@@ -3048,16 +2516,7 @@ export function writeCommit({ fs, dir, gitdir, commit, }:
  * console.log('tag', oid)
  *
  */
-export function writeObject({ fs: _fs, dir, gitdir, type, object, format, oid, encoding, }: 
- * @param {FsClient} args.fs - a file system client
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string | Uint8Array | CommitObject | TreeObject | TagObject} args.object - The object to write.
- * @param {'blob' | 'tree' | 'commit' | 'tag'} [args.type] - The kind of object to write.
- * @param {'deflated' | 'wrapped' | 'content' | 'parsed'} [args.format] - What format the object is in. The possible choices are listed below.
- * @param {string} [args.oid] - If `format` is `'deflated'` then this param is required. Otherwise it is calculated.
- * @param {string} [args.encoding] - If `type` is `'blob'` then `object` will be converted to a Uint8Array using `encoding`.
-): Promise<string>;
+export function writeObject({ fs: _fs, dir, gitdir, type, object, format, oid, encoding, }): Promise<string>;
 /**
  * Write a ref which refers to the specified SHA-1 object id, or a symbolic ref which refers to the specified ref.
  *
@@ -3090,15 +2549,7 @@ export function writeObject({ fs: _fs, dir, gitdir, type, object, format, oid, e
  * console.log('done')
  *
  */
-export function writeRef({ fs: _fs, dir, gitdir, ref, value, force, symbolic, }: 
- * @param {FsClient} args.fs - a file system client
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string} args.ref - The name of the ref to write
- * @param {string} args.value - When `symbolic` is false, a ref or an SHA-1 object id. When true, a ref starting with `refs/`.
- * @param {boolean} [args.force] - Instead of throwing an error if a ref named `ref` already exists, overwrite the existing ref.
- * @param {boolean} [args.symbolic] - Whether the ref is symbolic or not.
-): Promise<void>;
+export function writeRef({ fs: _fs, dir, gitdir, ref, value, force, symbolic, }): Promise<void>;
 /**
  * Write an annotated tag object directly
  *
@@ -3136,12 +2587,7 @@ export function writeRef({ fs: _fs, dir, gitdir, ref, value, force, symbolic, }:
  * console.log('tag', oid)
  *
  */
-export function writeTag({ fs, dir, gitdir, tag }: 
- * @param {FsClient} args.fs - a file system client
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {TagObject} args.tag - The object to write
-): Promise<string>;
+export function writeTag({ fs, dir, gitdir, tag }): Promise<string>;
 /**
  * Write a tree object directly
  *
@@ -3156,12 +2602,7 @@ export function writeTag({ fs, dir, gitdir, tag }:
  * @see TreeEntry
  *
  */
-export function writeTree({ fs, dir, gitdir, tree }: 
- * @param {FsClient} args.fs - a file system client
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {TreeObject} args.tree - The object to write
-): Promise<string>;
+export function writeTree({ fs, dir, gitdir, tree }): Promise<string>;
 declare class AlreadyExistsError extends BaseError {
     /**
      * @param {'note'|'remote'|'tag'|'branch'} noun
