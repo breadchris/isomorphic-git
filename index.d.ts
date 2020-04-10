@@ -15,7 +15,7 @@ export type TreeEntry = {
     /**
      * - the type of object
      */
-    type: 'commit' | 'blob' | 'tree';
+    type: "blob" | "tree" | "commit";
 };
 /**
  * - The object returned has the following schema:
@@ -28,7 +28,7 @@ export type ReadTreeResult = {
     /**
      * - the parsed tree object
      */
-    tree: TreeObject;
+    tree: TreeEntry[];
 };
 /**
  * - The object returned has the following schema:
@@ -90,7 +90,26 @@ export type GetRemoteInfoResult = {
      * - The list of capabilities returned by the server (part of the Git protocol)
      */
     capabilities: string[];
-    refs: any;
+    refs?: {
+        /**
+         * - The branches on the remote
+         */
+        heads?: {
+            [x: string]: string;
+        };
+        /**
+         * - The special branches representing pull requests (non-standard)
+         */
+        pull?: {
+            [x: string]: string;
+        };
+        /**
+         * - The tags on the remote
+         */
+        tags?: {
+            [x: string]: string;
+        };
+    };
 };
 /**
  * - The object returned has the following schema:
@@ -103,7 +122,7 @@ export type HashBlobResult = {
     /**
      * - The type of the object
      */
-    type: 'blob';
+    type: "blob";
     /**
      * - The wrapped git object (the thing that is hashed)
      */
@@ -111,7 +130,7 @@ export type HashBlobResult = {
     /**
      * - The format of the object
      */
-    format: 'wrapped';
+    format: "wrapped";
 };
 /**
  * The packObjects command returns an object with two properties:
@@ -135,50 +154,50 @@ export type ReadBlobResult = {
 };
 export type DeflatedObject = {
     oid: string;
-    type: 'deflated';
-    format: 'deflated';
+    type: "deflated";
+    format: "deflated";
     object: Uint8Array;
     source?: string;
 };
 export type WrappedObject = {
     oid: string;
-    type: 'wrapped';
-    format: 'wrapped';
+    type: "wrapped";
+    format: "wrapped";
     object: Uint8Array;
     source?: string;
 };
 export type RawObject = {
     oid: string;
-    type: 'blob' | 'commit' | 'tree' | 'tag';
-    format: 'content';
+    type: "blob" | "tree" | "commit" | "tag";
+    format: "content";
     object: Uint8Array;
     source?: string;
 };
 export type ParsedBlobObject = {
     oid: string;
-    type: 'blob';
-    format: 'parsed';
+    type: "blob";
+    format: "parsed";
     object: string;
     source?: string;
 };
 export type ParsedCommitObject = {
     oid: string;
-    type: 'commit';
-    format: 'parsed';
+    type: "commit";
+    format: "parsed";
     object: CommitObject;
     source?: string;
 };
 export type ParsedTreeObject = {
     oid: string;
-    type: 'tree';
-    format: 'parsed';
-    object: TreeObject;
+    type: "tree";
+    format: "parsed";
+    object: TreeEntry[];
     source?: string;
 };
 export type ParsedTagObject = {
     oid: string;
-    type: 'tag';
-    format: 'parsed';
+    type: "tag";
+    format: "parsed";
     object: TagObject;
     source?: string;
 };
@@ -237,7 +256,7 @@ export type GitHttpRequest = {
     /**
      * - Reserved for future use (canceling a request)
      */
-    signal?: object;
+    signal?: any;
 };
 export type GitHttpResponse = {
     /**
@@ -287,8 +306,42 @@ export type CommitObject = {
      * an array of zero or more SHA-1 object ids
      */
     parent: string[];
-    author: any;
-    committer: any;
+    author: {
+        /**
+         * The author's name
+         */
+        name: string;
+        /**
+         * The author's email
+         */
+        email: string;
+        /**
+         * UTC Unix timestamp in seconds
+         */
+        timestamp: number;
+        /**
+         * Timezone difference from UTC in minutes
+         */
+        timezoneOffset: number;
+    };
+    committer: {
+        /**
+         * The committer's name
+         */
+        name: string;
+        /**
+         * The committer's email
+         */
+        email: string;
+        /**
+         * UTC Unix timestamp in seconds
+         */
+        timestamp: number;
+        /**
+         * Timezone difference from UTC in minutes
+         */
+        timezoneOffset: number;
+    };
     /**
      * PGP signature (if present)
      */
@@ -309,12 +362,29 @@ export type TagObject = {
     /**
      * the type of the object being tagged
      */
-    type: 'blob' | 'tree' | 'commit' | 'tag';
+    type: "blob" | "tree" | "commit" | "tag";
     /**
      * the tag name
      */
     tag: string;
-    tagger: any;
+    tagger: {
+        /**
+         * the tagger's name
+         */
+        name: string;
+        /**
+         * the tagger's email
+         */
+        email: string;
+        /**
+         * UTC Unix timestamp in seconds
+         */
+        timestamp: number;
+        /**
+         * timezone difference from UTC in minutes
+         */
+        timezoneOffset: number;
+    };
     /**
      * tag message
      */
@@ -363,60 +433,105 @@ export type Stat = {
  * The `WalkerEntry` is an interface that abstracts computing many common tree / blob stats.
  */
 export type WalkerEntry = {
-    type: () => Promise<'tree' | 'blob' | 'special' | 'commit'>;
+    type: () => Promise<"blob" | "tree" | "commit" | "special">;
     mode: () => Promise<number>;
     oid: () => Promise<string>;
-    content: () => Promise<Uint8Array | void>;
+    content: () => Promise<void | Uint8Array>;
     stat: () => Promise<Stat>;
 };
 export type CallbackFsClient = {
     /**
      * - https://nodejs.org/api/fs.html#fs_fs_readfile_path_options_callback
      */
-    readFile: function;
+    readFile: Function;
     /**
      * - https://nodejs.org/api/fs.html#fs_fs_writefile_file_data_options_callback
      */
-    writeFile: function;
+    writeFile: Function;
     /**
      * - https://nodejs.org/api/fs.html#fs_fs_unlink_path_callback
      */
-    unlink: function;
+    unlink: Function;
     /**
      * - https://nodejs.org/api/fs.html#fs_fs_readdir_path_options_callback
      */
-    readdir: function;
+    readdir: Function;
     /**
      * - https://nodejs.org/api/fs.html#fs_fs_mkdir_path_mode_callback
      */
-    mkdir: function;
+    mkdir: Function;
     /**
      * - https://nodejs.org/api/fs.html#fs_fs_rmdir_path_callback
      */
-    rmdir: function;
+    rmdir: Function;
     /**
      * - https://nodejs.org/api/fs.html#fs_fs_stat_path_options_callback
      */
-    stat: function;
+    stat: Function;
     /**
      * - https://nodejs.org/api/fs.html#fs_fs_lstat_path_options_callback
      */
-    lstat: function;
+    lstat: Function;
     /**
      * - https://nodejs.org/api/fs.html#fs_fs_readlink_path_options_callback
      */
-    readlink?: function;
+    readlink?: Function;
     /**
      * - https://nodejs.org/api/fs.html#fs_fs_symlink_target_path_type_callback
      */
-    symlink?: function;
+    symlink?: Function;
     /**
      * - https://nodejs.org/api/fs.html#fs_fs_chmod_path_mode_callback
      */
-    chmod?: function;
+    chmod?: Function;
 };
 export type PromiseFsClient = {
-    promises: any;
+    promises: {
+        /**
+         * - https://nodejs.org/api/fs.html#fs_fspromises_readfile_path_options
+         */
+        readFile: Function;
+        /**
+         * - https://nodejs.org/api/fs.html#fs_fspromises_writefile_file_data_options
+         */
+        writeFile: Function;
+        /**
+         * - https://nodejs.org/api/fs.html#fs_fspromises_unlink_path
+         */
+        unlink: Function;
+        /**
+         * - https://nodejs.org/api/fs.html#fs_fspromises_readdir_path_options
+         */
+        readdir: Function;
+        /**
+         * - https://nodejs.org/api/fs.html#fs_fspromises_mkdir_path_options
+         */
+        mkdir: Function;
+        /**
+         * - https://nodejs.org/api/fs.html#fs_fspromises_rmdir_path
+         */
+        rmdir: Function;
+        /**
+         * - https://nodejs.org/api/fs.html#fs_fspromises_stat_path_options
+         */
+        stat: Function;
+        /**
+         * - https://nodejs.org/api/fs.html#fs_fspromises_lstat_path_options
+         */
+        lstat: Function;
+        /**
+         * - https://nodejs.org/api/fs.html#fs_fspromises_readlink_path_options
+         */
+        readlink?: Function;
+        /**
+         * - https://nodejs.org/api/fs.html#fs_fspromises_symlink_target_path_type
+         */
+        symlink?: Function;
+        /**
+         * - https://nodejs.org/api/fs.html#fs_fspromises_chmod_path_mode
+         */
+        chmod?: Function;
+    };
 };
 export type FsClient = CallbackFsClient | PromiseFsClient;
 export type MessageCallback = (message: string) => void | Promise<void>;
@@ -431,8 +546,8 @@ export type GitAuth = {
      */
     cancel?: boolean;
 };
-export type AuthCallback = (url: string, auth: GitAuth) => GitAuth | void | Promise<GitAuth | void>;
-export type AuthFailureCallback = (url: string, auth: GitAuth) => GitAuth | void | Promise<GitAuth | void>;
+export type AuthCallback = (url: string, auth: GitAuth) => void | GitAuth | Promise<void | GitAuth>;
+export type AuthFailureCallback = (url: string, auth: GitAuth) => void | GitAuth | Promise<void | GitAuth>;
 export type AuthSuccessCallback = (url: string, auth: GitAuth) => void | Promise<void>;
 export type SignParams = {
     /**
@@ -570,7 +685,9 @@ export function STAGE(): Walker;
  * @param {string} [args.ref='HEAD']
  * @returns {Walker}
  */
-export function TREE({ ref }): Walker;
+export function TREE({ ref }: {
+    ref?: string;
+}): Walker;
 /**
  * @returns {Walker}
  */
@@ -592,7 +709,12 @@ export function WORKDIR(): Walker;
  * console.log('done')
  *
  */
-export function add({ fs: _fs, dir, gitdir, filepath, }): Promise<void>;
+export function add({ fs: _fs, dir, gitdir, filepath, }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    dir: string;
+    gitdir?: string;
+    filepath: string;
+}): Promise<void>;
 /**
  * Add or update an object note
  *
@@ -619,7 +741,29 @@ export function add({ fs: _fs, dir, gitdir, filepath, }): Promise<void>;
  *
  * @returns {Promise<string>} Resolves successfully with the SHA-1 object id of the commit object for the added note.
  */
-export function addNote({ fs: _fs, onSign, dir, gitdir, ref, oid, note, force, author: _author, committer: _committer, signingKey, }): Promise<string>;
+export function addNote({ fs: _fs, onSign, dir, gitdir, ref, oid, note, force, author: _author, committer: _committer, signingKey, }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    onSign?: SignCallback;
+    dir?: string;
+    gitdir?: string;
+    ref?: string;
+    oid: string;
+    note: string | Uint8Array;
+    force?: boolean;
+    author?: {
+        name?: string;
+        email?: string;
+        timestamp?: number;
+        timezoneOffset?: number;
+    };
+    committer?: {
+        name?: string;
+        email?: string;
+        timestamp?: number;
+        timezoneOffset?: number;
+    };
+    signingKey?: string;
+}): Promise<string>;
 /**
  * Add or update a remote
  *
@@ -643,7 +787,14 @@ export function addNote({ fs: _fs, onSign, dir, gitdir, ref, oid, note, force, a
  * console.log('done')
  *
  */
-export function addRemote({ fs, dir, gitdir, remote, url, force, }): Promise<void>;
+export function addRemote({ fs, dir, gitdir, remote, url, force, }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    dir?: string;
+    gitdir?: string;
+    remote: string;
+    url: string;
+    force?: boolean;
+}): Promise<void>;
 /**
  * Create an annotated tag.
  *
@@ -680,7 +831,24 @@ export function addRemote({ fs, dir, gitdir, remote, url, force, }): Promise<voi
  * console.log('done')
  *
  */
-export function annotatedTag({ fs: _fs, onSign, dir, gitdir, ref, tagger: _tagger, message, gpgsig, object, signingKey, force, }): Promise<void>;
+export function annotatedTag({ fs: _fs, onSign, dir, gitdir, ref, tagger: _tagger, message, gpgsig, object, signingKey, force, }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    onSign?: SignCallback;
+    dir?: string;
+    gitdir?: string;
+    ref: string;
+    message?: string;
+    object?: string;
+    tagger?: {
+        name?: string;
+        email?: string;
+        timestamp?: number;
+        timezoneOffset?: number;
+    };
+    gpgsig?: string;
+    signingKey?: string;
+    force?: boolean;
+}): Promise<void>;
 /**
  * Create a branch
  *
@@ -698,7 +866,77 @@ export function annotatedTag({ fs: _fs, onSign, dir, gitdir, ref, tagger: _tagge
  * console.log('done')
  *
  */
-export function branch({ fs, dir, gitdir, ref, checkout, }): Promise<void>;
+export function branch({ fs, dir, gitdir, ref, checkout, }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    dir?: string;
+    gitdir?: string;
+    ref: string;
+    checkout?: boolean;
+}): Promise<void>;
+/**
+ * Checkout a branch
+ *
+ * If the branch already exists it will check out that branch. Otherwise, it will create a new remote tracking branch set to track the remote branch of that name.
+ *
+ * @param {object} args
+ * @param {FsClient} args.fs - a file system implementation
+ * @param {ProgressCallback} [args.onProgress] - optional progress event callback
+ * @param {string} args.dir - The [working tree](dir-vs-gitdir.md) directory path
+ * @param {string} [args.gitdir=join(dir,'.git')] - [required] The [git directory](dir-vs-gitdir.md) path
+ * @param {string} [args.ref = 'HEAD'] - Source to checkout files from
+ * @param {string[]} [args.filepaths] - Limit the checkout to the given files and directories
+ * @param {string} [args.remote = 'origin'] - Which remote repository to use
+ * @param {boolean} [args.noCheckout = false] - If true, will update HEAD but won't update the working directory
+ * @param {boolean} [args.noUpdateHead] - If true, will update the working directory but won't update HEAD. Defaults to `false` when `ref` is provided, and `true` if `ref` is not provided.
+ * @param {boolean} [args.dryRun = false] - If true, simulates a checkout so you can test whether it would succeed.
+ * @param {boolean} [args.force = false] - If true, conflicts will be ignored and files will be overwritten regardless of local changes.
+ *
+ * @returns {Promise<void>} Resolves successfully when filesystem operations are complete
+ *
+ * @example
+ * // switch to the master branch
+ * await git.checkout({
+ *   fs,
+ *   dir: '/tutorial',
+ *   ref: 'master'
+ * })
+ * console.log('done')
+ *
+ * @example
+ * // restore the 'docs' and 'src/docs' folders to the way they were, overwriting any changes
+ * await git.checkout({
+ *   fs,
+ *   dir: '/tutorial',
+ *   force: true,
+ *   filepaths: ['docs', 'src/docs']
+ * })
+ * console.log('done')
+ *
+ * @example
+ * // restore the 'docs' and 'src/docs' folders to the way they are in the 'develop' branch, overwriting any changes
+ * await git.checkout({
+ *   fs,
+ *   dir: '/tutorial',
+ *   ref: 'develop',
+ *   noUpdateHead: true,
+ *   force: true,
+ *   filepaths: ['docs', 'src/docs']
+ * })
+ * console.log('done')
+ */
+export function checkout({ fs, onProgress, dir, gitdir, remote, ref: _ref, filepaths, noCheckout, noUpdateHead, dryRun, force, }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    onProgress?: ProgressCallback;
+    dir: string;
+    gitdir?: string;
+    ref?: string;
+    filepaths?: string[];
+    remote?: string;
+    noCheckout?: boolean;
+    noUpdateHead?: boolean;
+    dryRun?: boolean;
+    force?: boolean;
+}): Promise<void>;
 /**
  * Clone a repository
  *
@@ -740,7 +978,31 @@ export function branch({ fs, dir, gitdir, ref, checkout, }): Promise<void>;
  * console.log('done')
  *
  */
-export function clone({ fs, http, onProgress, onMessage, onAuth, onAuthSuccess, onAuthFailure, dir, gitdir, url, corsProxy, ref, remote, depth, since, exclude, relative, singleBranch, noCheckout, noTags, headers, }): Promise<void>;
+export function clone({ fs, http, onProgress, onMessage, onAuth, onAuthSuccess, onAuthFailure, dir, gitdir, url, corsProxy, ref, remote, depth, since, exclude, relative, singleBranch, noCheckout, noTags, headers, }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    http: HttpClient;
+    onProgress?: ProgressCallback;
+    onMessage?: MessageCallback;
+    onAuth?: AuthCallback;
+    onAuthFailure?: AuthFailureCallback;
+    onAuthSuccess?: AuthSuccessCallback;
+    dir: string;
+    gitdir?: string;
+    url: string;
+    corsProxy?: string;
+    ref?: string;
+    singleBranch?: boolean;
+    noCheckout?: boolean;
+    noTags?: boolean;
+    remote?: string;
+    depth?: number;
+    since?: Date;
+    exclude?: string[];
+    relative?: boolean;
+    headers?: {
+        [x: string]: string;
+    };
+}): Promise<void>;
 /**
  * Create a new commit
  *
@@ -782,7 +1044,31 @@ export function clone({ fs, http, onProgress, onMessage, onAuth, onAuthSuccess, 
  * console.log(sha)
  *
  */
-export function commit({ fs: _fs, onSign, dir, gitdir, message, author: _author, committer: _committer, signingKey, dryRun, noUpdateBranch, ref, parent, tree, }): Promise<string>;
+export function commit({ fs: _fs, onSign, dir, gitdir, message, author: _author, committer: _committer, signingKey, dryRun, noUpdateBranch, ref, parent, tree, }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    onSign?: SignCallback;
+    dir?: string;
+    gitdir?: string;
+    message: string;
+    author?: {
+        name?: string;
+        email?: string;
+        timestamp?: number;
+        timezoneOffset?: number;
+    };
+    committer?: {
+        name?: string;
+        email?: string;
+        timestamp?: number;
+        timezoneOffset?: number;
+    };
+    signingKey?: string;
+    dryRun?: boolean;
+    noUpdateBranch?: boolean;
+    ref?: string;
+    parent?: string[];
+    tree?: string;
+}): Promise<string>;
 /**
  * Get the name of the branch currently pointed to by .git/HEAD
  *
@@ -805,7 +1091,13 @@ export function commit({ fs: _fs, onSign, dir, gitdir, message, author: _author,
  * console.log(branch)
  *
  */
-export function currentBranch({ fs, dir, gitdir, fullname, test, }): Promise<string | void>;
+export function currentBranch({ fs, dir, gitdir, fullname, test, }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    dir?: string;
+    gitdir?: string;
+    fullname?: boolean;
+    test?: boolean;
+}): Promise<string | void>;
 /**
  * Delete a local branch
  *
@@ -824,12 +1116,12 @@ export function currentBranch({ fs, dir, gitdir, fullname, test, }): Promise<str
  * console.log('done')
  *
  */
-export function deleteBranch({ fs, dir, gitdir, ref, }: 
- * @param {FsClient} args.fs - a file system implementation
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string} args.ref - The branch to delete
-): Promise<void>;
+export function deleteBranch({ fs, dir, gitdir, ref, }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    dir?: string;
+    gitdir?: string;
+    ref: string;
+}): Promise<void>;
 /**
  * Delete a local ref
  *
@@ -846,12 +1138,12 @@ export function deleteBranch({ fs, dir, gitdir, ref, }:
  * console.log('done')
  *
  */
-export function deleteRef({ fs, dir, gitdir, ref }: 
- * @param {FsClient} args.fs - a file system implementation
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {string} args.ref - The ref to delete
-): Promise<void>;
+export function deleteRef({ fs, dir, gitdir, ref }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    dir?: string;
+    gitdir?: string;
+    ref: string;
+}): Promise<void>;
 /**
  * Removes the local config entry for a given remote
  *
@@ -868,7 +1160,12 @@ export function deleteRef({ fs, dir, gitdir, ref }:
  * console.log('done')
  *
  */
-export function deleteRemote({ fs, dir, gitdir, remote, }): Promise<void>;
+export function deleteRemote({ fs, dir, gitdir, remote, }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    dir?: string;
+    gitdir?: string;
+    remote: string;
+}): Promise<void>;
 /**
  * Delete a local tag ref
  *
@@ -885,7 +1182,12 @@ export function deleteRemote({ fs, dir, gitdir, remote, }): Promise<void>;
  * console.log('done')
  *
  */
-export function deleteTag({ fs, dir, gitdir, ref }): Promise<void>;
+export function deleteTag({ fs, dir, gitdir, ref }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    dir?: string;
+    gitdir?: string;
+    ref: string;
+}): Promise<void>;
 /**
  * Expand and resolve a short oid into a full oid
  *
@@ -902,7 +1204,12 @@ export function deleteTag({ fs, dir, gitdir, ref }): Promise<void>;
  * console.log(oid)
  *
  */
-export function expandOid({ fs, dir, gitdir, oid }): Promise<string>;
+export function expandOid({ fs, dir, gitdir, oid }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    dir?: string;
+    gitdir?: string;
+    oid: string;
+}): Promise<string>;
 /**
  * Expand an abbreviated ref to its full name
  *
@@ -919,7 +1226,12 @@ export function expandOid({ fs, dir, gitdir, oid }): Promise<string>;
  * console.log(fullRef)
  *
  */
-export function expandRef({ fs, dir, gitdir, ref }): Promise<string>;
+export function expandRef({ fs, dir, gitdir, ref }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    dir?: string;
+    gitdir?: string;
+    ref: string;
+}): Promise<string>;
 /**
  * Like `pull`, but hard-coded with `fastForward: true` so there is no need for an `author` parameter.
  *
@@ -954,7 +1266,26 @@ export function expandRef({ fs, dir, gitdir, ref }): Promise<string>;
  * console.log('done')
  *
  */
-export function fastForward({ fs, http, onProgress, onMessage, onAuth, onAuthSuccess, onAuthFailure, dir, gitdir, ref, url, remote, remoteRef, corsProxy, singleBranch, headers, }): Promise<void>;
+export function fastForward({ fs, http, onProgress, onMessage, onAuth, onAuthSuccess, onAuthFailure, dir, gitdir, ref, url, remote, remoteRef, corsProxy, singleBranch, headers, }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    http: HttpClient;
+    onProgress?: ProgressCallback;
+    onMessage?: MessageCallback;
+    onAuth?: AuthCallback;
+    onAuthFailure?: AuthFailureCallback;
+    onAuthSuccess?: AuthSuccessCallback;
+    dir: string;
+    gitdir?: string;
+    ref?: string;
+    url?: string;
+    remote?: string;
+    remoteRef?: string;
+    corsProxy?: string;
+    singleBranch?: boolean;
+    headers?: {
+        [x: string]: string;
+    };
+}): Promise<void>;
 /**
  *
  * @typedef {object} FetchResult - The object returned has the following schema:
@@ -1011,7 +1342,33 @@ export function fastForward({ fs, http, onProgress, onMessage, onAuth, onAuthSuc
  * console.log(result)
  *
  */
-export function fetch({ fs, http, onProgress, onMessage, onAuth, onAuthSuccess, onAuthFailure, dir, gitdir, ref, remote, remoteRef, url, corsProxy, depth, since, exclude, relative, tags, singleBranch, headers, prune, pruneTags, }): Promise<FetchResult>;
+export function fetch({ fs, http, onProgress, onMessage, onAuth, onAuthSuccess, onAuthFailure, dir, gitdir, ref, remote, remoteRef, url, corsProxy, depth, since, exclude, relative, tags, singleBranch, headers, prune, pruneTags, }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    http: HttpClient;
+    onProgress?: ProgressCallback;
+    onMessage?: MessageCallback;
+    onAuth?: AuthCallback;
+    onAuthFailure?: AuthFailureCallback;
+    onAuthSuccess?: AuthSuccessCallback;
+    dir?: string;
+    gitdir?: string;
+    url?: string;
+    remote?: string;
+    singleBranch?: boolean;
+    ref?: string;
+    remoteRef?: string;
+    tags?: boolean;
+    depth?: number;
+    relative?: boolean;
+    since?: Date;
+    exclude?: string[];
+    prune?: boolean;
+    pruneTags?: boolean;
+    corsProxy?: string;
+    headers?: {
+        [x: string]: string;
+    };
+}): Promise<FetchResult>;
 /**
  * Find the merge base for a set of commits
  *
@@ -1022,7 +1379,12 @@ export function fetch({ fs, http, onProgress, onMessage, onAuth, onAuthSuccess, 
  * @param {string[]} args.oids - Which commits
  *
  */
-export function findMergeBase({ fs, dir, gitdir, oids, }): Promise<any[]>;
+export function findMergeBase({ fs, dir, gitdir, oids, }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    dir?: string;
+    gitdir?: string;
+    oids: string[];
+}): Promise<any[]>;
 /**
  * Find the root git directory
  *
@@ -1043,7 +1405,10 @@ export function findMergeBase({ fs, dir, gitdir, oids, }): Promise<any[]>;
  * console.log(gitroot)
  *
  */
-export function findRoot({ fs, filepath }): Promise<string>;
+export function findRoot({ fs, filepath }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    filepath: string;
+}): Promise<string>;
 /**
  * Read an entry from the git config files.
  *
@@ -1069,7 +1434,12 @@ export function findRoot({ fs, filepath }): Promise<string>;
  * console.log(value)
  *
  */
-export function getConfig({ fs, dir, gitdir, path }): Promise<any>;
+export function getConfig({ fs, dir, gitdir, path }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    dir?: string;
+    gitdir?: string;
+    path: string;
+}): Promise<any>;
 /**
  * Read a multi-valued entry from the git config files.
  *
@@ -1086,7 +1456,12 @@ export function getConfig({ fs, dir, gitdir, path }): Promise<any>;
  * @returns {Promise<Array<any>>} Resolves with the config value
  *
  */
-export function getConfigAll({ fs, dir, gitdir, path, }): Promise<Array<any>>;
+export function getConfigAll({ fs, dir, gitdir, path, }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    dir?: string;
+    gitdir?: string;
+    path: string;
+}): Promise<any[]>;
 /**
  *
  * @typedef {Object} GetRemoteInfoResult - The object returned has the following schema:
@@ -1125,7 +1500,18 @@ export function getConfigAll({ fs, dir, gitdir, path, }): Promise<Array<any>>;
  * console.log(info);
  *
  */
-export function getRemoteInfo({ http, onAuth, onAuthSuccess, onAuthFailure, corsProxy, url, headers, forPush, }): Promise<GetRemoteInfoResult>;
+export function getRemoteInfo({ http, onAuth, onAuthSuccess, onAuthFailure, corsProxy, url, headers, forPush, }: {
+    http: HttpClient;
+    onAuth?: AuthCallback;
+    onAuthFailure?: AuthFailureCallback;
+    onAuthSuccess?: AuthSuccessCallback;
+    url: string;
+    corsProxy?: string;
+    forPush?: boolean;
+    headers?: {
+        [x: string]: string;
+    };
+}): Promise<GetRemoteInfoResult>;
 /**
  *
  * @typedef {object} HashBlobResult - The object returned has the following schema:
@@ -1155,7 +1541,9 @@ export function getRemoteInfo({ http, onAuth, onAuthSuccess, onAuthFailure, cors
  * console.log('format', format)
  *
  */
-export function hashBlob({ object }): Promise<HashBlobResult>;
+export function hashBlob({ object }: {
+    object: string | Uint8Array;
+}): Promise<HashBlobResult>;
 /**
  * Create the .idx file for a given .pack file
  *
@@ -1184,7 +1572,13 @@ export function hashBlob({ object }): Promise<HashBlobResult>;
  * console.log(oids)
  *
  */
-export function indexPack({ fs, onProgress, dir, gitdir, filepath, }): Promise<{
+export function indexPack({ fs, onProgress, dir, gitdir, filepath, }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    onProgress?: ProgressCallback;
+    dir: string;
+    gitdir?: string;
+    filepath: string;
+}): Promise<{
     oids: string[];
 }>;
 /**
@@ -1202,12 +1596,12 @@ export function indexPack({ fs, onProgress, dir, gitdir, filepath, }): Promise<{
  * console.log('done')
  *
  */
-export function init({ fs, bare, dir, gitdir, }: 
- * @param {FsClient} args.fs - a file system client
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
- * @param {boolean} [args.bare] - Initialize a bare repository
-): Promise<void>;
+export function init({ fs, bare, dir, gitdir, }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    dir?: string;
+    gitdir?: string;
+    bare?: boolean;
+}): Promise<void>;
 /**
  * Check whether a git commit is descended from another
  *
@@ -1228,7 +1622,14 @@ export function init({ fs, bare, dir, gitdir, }:
  * await git.isDescendent({ fs, dir: '/tutorial', oid, ancestor, depth: -1 })
  *
  */
-export function isDescendent({ fs, dir, gitdir, oid, ancestor, depth, }): Promise<boolean>;
+export function isDescendent({ fs, dir, gitdir, oid, ancestor, depth, }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    dir?: string;
+    gitdir?: string;
+    oid: string;
+    ancestor: string;
+    depth?: number;
+}): Promise<boolean>;
 /**
  * List branches
  *
@@ -1253,7 +1654,12 @@ export function isDescendent({ fs, dir, gitdir, oid, ancestor, depth, }): Promis
  * console.log(remoteBranches)
  *
  */
-export function listBranches({ fs, dir, gitdir, remote, }): Promise<Array<string>>;
+export function listBranches({ fs, dir, gitdir, remote, }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    dir?: string;
+    gitdir?: string;
+    remote?: string;
+}): Promise<string[]>;
 /**
  * List all the files in the git index or a commit
  *
@@ -1277,7 +1683,12 @@ export function listBranches({ fs, dir, gitdir, remote, }): Promise<Array<string
  * console.log(files)
  *
  */
-export function listFiles({ fs, dir, gitdir, ref }): Promise<Array<string>>;
+export function listFiles({ fs, dir, gitdir, ref }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    dir?: string;
+    gitdir?: string;
+    ref?: string;
+}): Promise<string[]>;
 /**
  * List all the object notes
  *
@@ -1289,10 +1700,15 @@ export function listFiles({ fs, dir, gitdir, ref }): Promise<Array<string>>;
  *
  * @returns {Promise<Array<{target: string, note: string}>>} Resolves successfully with an array of entries containing SHA-1 object ids of the note and the object the note targets
  */
-export function listNotes({ fs, dir, gitdir, ref, }): Promise<Array<{
+export function listNotes({ fs, dir, gitdir, ref, }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    dir?: string;
+    gitdir?: string;
+    ref?: string;
+}): Promise<{
     target: string;
     note: string;
-}>>;
+}[]>;
 /**
  * List remotes
  *
@@ -1308,14 +1724,14 @@ export function listNotes({ fs, dir, gitdir, ref, }): Promise<Array<{
  * console.log(remotes)
  *
  */
-export function listRemotes({ fs, dir, gitdir }: 
- * @param {FsClient} args.fs - a file system client
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
-): Promise<Array<{
+export function listRemotes({ fs, dir, gitdir }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    dir?: string;
+    gitdir?: string;
+}): Promise<{
     remote: string;
     url: string;
-}>>;
+}[]>;
 /**
  * List tags
  *
@@ -1331,11 +1747,11 @@ export function listRemotes({ fs, dir, gitdir }:
  * console.log(tags)
  *
  */
-export function listTags({ fs, dir, gitdir }: 
- * @param {FsClient} args.fs - a file system client
- * @param {string} [args.dir] - The [working tree](dir-vs-gitdir.md) directory path
- * @param {string} [args.gitdir] - [required] The [git directory](dir-vs-gitdir.md) path
-): Promise<Array<string>>;
+export function listTags({ fs, dir, gitdir }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    dir?: string;
+    gitdir?: string;
+}): Promise<string[]>;
 /**
  * Get commit descriptions from the git history
  *
@@ -1361,7 +1777,14 @@ export function listTags({ fs, dir, gitdir }:
  * console.log(commits)
  *
  */
-export function log({ fs, dir, gitdir, ref, depth, since, }): Promise<Array<ReadCommitResult>>;
+export function log({ fs, dir, gitdir, ref, depth, since, }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    dir?: string;
+    gitdir?: string;
+    ref?: string;
+    depth?: number;
+    since?: Date;
+}): Promise<ReadCommitResult[]>;
 /**
  *
  * @typedef {Object} MergeResult - Returns an object with a schema like this:
@@ -1420,7 +1843,31 @@ export function log({ fs, dir, gitdir, ref, depth, since, }): Promise<Array<Read
  * console.log(m)
  *
  */
-export function merge({ fs: _fs, onSign, dir, gitdir, ours, theirs, fastForwardOnly, dryRun, noUpdateBranch, message, author: _author, committer: _committer, signingKey, }): Promise<MergeResult>;
+export function merge({ fs: _fs, onSign, dir, gitdir, ours, theirs, fastForwardOnly, dryRun, noUpdateBranch, message, author: _author, committer: _committer, signingKey, }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    onSign?: SignCallback;
+    dir?: string;
+    gitdir?: string;
+    ours?: string;
+    theirs: string;
+    fastForwardOnly?: boolean;
+    dryRun?: boolean;
+    noUpdateBranch?: boolean;
+    message?: string;
+    author?: {
+        name?: string;
+        email?: string;
+        timestamp?: number;
+        timezoneOffset?: number;
+    };
+    committer?: {
+        name?: string;
+        email?: string;
+        timestamp?: number;
+        timezoneOffset?: number;
+    };
+    signingKey?: string;
+}): Promise<MergeResult>;
 /**
  *
  * @typedef {Object} PackObjectsResult The packObjects command returns an object with two properties:
@@ -1450,7 +1897,13 @@ export function merge({ fs: _fs, onSign, dir, gitdir, ours, theirs, fastForwardO
  * console.log(packfile)
  *
  */
-export function packObjects({ fs, dir, gitdir, oids, write, }): Promise<PackObjectsResult>;
+export function packObjects({ fs, dir, gitdir, oids, write, }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    dir?: string;
+    gitdir?: string;
+    oids: string[];
+    write?: boolean;
+}): Promise<PackObjectsResult>;
 /**
  * Fetch and merge commits from a remote repository
  *
@@ -1497,7 +1950,40 @@ export function packObjects({ fs, dir, gitdir, oids, write, }): Promise<PackObje
  * console.log('done')
  *
  */
-export function pull({ fs: _fs, http, onProgress, onMessage, onAuth, onAuthSuccess, onAuthFailure, dir, gitdir, ref, url, remote, remoteRef, fastForwardOnly, corsProxy, singleBranch, headers, author: _author, committer: _committer, signingKey, }): Promise<void>;
+export function pull({ fs: _fs, http, onProgress, onMessage, onAuth, onAuthSuccess, onAuthFailure, dir, gitdir, ref, url, remote, remoteRef, fastForwardOnly, corsProxy, singleBranch, headers, author: _author, committer: _committer, signingKey, }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    http: HttpClient;
+    onProgress?: ProgressCallback;
+    onMessage?: MessageCallback;
+    onAuth?: AuthCallback;
+    onAuthFailure?: AuthFailureCallback;
+    onAuthSuccess?: AuthSuccessCallback;
+    dir: string;
+    gitdir?: string;
+    ref?: string;
+    url?: string;
+    remote?: string;
+    remoteRef?: string;
+    corsProxy?: string;
+    singleBranch?: boolean;
+    fastForwardOnly?: boolean;
+    headers?: {
+        [x: string]: string;
+    };
+    author?: {
+        name?: string;
+        email?: string;
+        timestamp?: number;
+        timezoneOffset?: number;
+    };
+    committer?: {
+        name?: string;
+        email?: string;
+        timestamp?: number;
+        timezoneOffset?: number;
+    };
+    signingKey?: string;
+}): Promise<void>;
 /**
  * Push a branch or tag
  *
@@ -1544,7 +2030,27 @@ export function pull({ fs: _fs, http, onProgress, onMessage, onAuth, onAuthSucce
  * console.log(pushResult)
  *
  */
-export function push({ fs, http, onProgress, onMessage, onAuth, onAuthSuccess, onAuthFailure, dir, gitdir, ref, remoteRef, remote, url, force, delete: _delete, corsProxy, headers, }): Promise<PushResult>;
+export function push({ fs, http, onProgress, onMessage, onAuth, onAuthSuccess, onAuthFailure, dir, gitdir, ref, remoteRef, remote, url, force, delete: _delete, corsProxy, headers, }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    http: HttpClient;
+    onProgress?: ProgressCallback;
+    onMessage?: MessageCallback;
+    onAuth?: AuthCallback;
+    onAuthFailure?: AuthFailureCallback;
+    onAuthSuccess?: AuthSuccessCallback;
+    dir?: string;
+    gitdir?: string;
+    ref?: string;
+    url?: string;
+    remote?: string;
+    remoteRef?: string;
+    force?: boolean;
+    delete?: boolean;
+    corsProxy?: string;
+    headers?: {
+        [x: string]: string;
+    };
+}): Promise<PushResult>;
 /**
  *
  * @typedef {Object} ReadBlobResult - The object returned has the following schema:
@@ -1578,7 +2084,13 @@ export function push({ fs, http, onProgress, onMessage, onAuth, onAuthSuccess, o
  * console.log(Buffer.from(blob).toString('utf8'))
  *
  */
-export function readBlob({ fs, dir, gitdir, oid, filepath, }): Promise<ReadBlobResult>;
+export function readBlob({ fs, dir, gitdir, oid, filepath, }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    dir?: string;
+    gitdir?: string;
+    oid: string;
+    filepath?: string;
+}): Promise<ReadBlobResult>;
 /**
  * Read a commit object directly
  *
@@ -1600,8 +2112,12 @@ export function readBlob({ fs, dir, gitdir, oid, filepath, }): Promise<ReadBlobR
  * console.log(commit)
  *
  */
-export function readCommit({ fs, dir, gitdir, oid }: 
-): Promise<ReadCommitResult>;
+export function readCommit({ fs, dir, gitdir, oid }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    dir?: string;
+    gitdir?: string;
+    oid: string;
+}): Promise<ReadCommitResult>;
 /**
  * Read the contents of a note
  *
@@ -1614,7 +2130,13 @@ export function readCommit({ fs, dir, gitdir, oid }:
  *
  * @returns {Promise<Uint8Array>} Resolves successfully with note contents as a Buffer.
  */
-export function readNote({ fs, dir, gitdir, ref, oid, }): Promise<Uint8Array>;
+export function readNote({ fs, dir, gitdir, ref, oid, }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    dir?: string;
+    gitdir?: string;
+    ref?: string;
+    oid: string;
+}): Promise<Uint8Array>;
 /**
  *
  * @typedef {Object} DeflatedObject
@@ -1793,8 +2315,15 @@ export function readNote({ fs, dir, gitdir, ref, oid, }): Promise<Uint8Array>;
  * }
  *
  */
-export function readObject({ fs: _fs, dir, gitdir, oid, format, filepath, encoding, }: 
-): Promise<ReadObjectResult>;
+export function readObject({ fs: _fs, dir, gitdir, oid, format, filepath, encoding, }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    dir?: string;
+    gitdir?: string;
+    oid: string;
+    format?: "parsed" | "deflated" | "content" | "wrapped";
+    filepath?: string;
+    encoding?: string;
+}): Promise<ParsedBlobObject | ParsedCommitObject | ParsedTreeObject | ParsedTagObject | DeflatedObject | WrappedObject | RawObject>;
 /**
  *
  * @typedef {Object} ReadTagResult - The object returned has the following schema:
@@ -1816,8 +2345,12 @@ export function readObject({ fs: _fs, dir, gitdir, oid, format, filepath, encodi
  * @see TagObject
  *
  */
-export function readTag({ fs, dir, gitdir, oid }: 
-): Promise<ReadTagResult>;
+export function readTag({ fs, dir, gitdir, oid }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    dir?: string;
+    gitdir?: string;
+    oid: string;
+}): Promise<ReadTagResult>;
 /**
  *
  * @typedef {Object} ReadTreeResult - The object returned has the following schema:
@@ -1840,7 +2373,13 @@ export function readTag({ fs, dir, gitdir, oid }:
  * @see TreeEntry
  *
  */
-export function readTree({ fs, dir, gitdir, oid, filepath, }): Promise<ReadTreeResult>;
+export function readTree({ fs, dir, gitdir, oid, filepath, }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    dir?: string;
+    gitdir?: string;
+    oid: string;
+    filepath?: string;
+}): Promise<ReadTreeResult>;
 /**
  * Remove a file from the git index (aka staging area)
  *
@@ -1859,7 +2398,12 @@ export function readTree({ fs, dir, gitdir, oid, filepath, }): Promise<ReadTreeR
  * console.log('done')
  *
  */
-export function remove({ fs: _fs, dir, gitdir, filepath, }): Promise<void>;
+export function remove({ fs: _fs, dir, gitdir, filepath, }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    dir?: string;
+    gitdir?: string;
+    filepath: string;
+}): Promise<void>;
 /**
  * Remove an object note
  *
@@ -1884,7 +2428,27 @@ export function remove({ fs: _fs, dir, gitdir, filepath, }): Promise<void>;
  *
  * @returns {Promise<string>} Resolves successfully with the SHA-1 object id of the commit object for the note removal.
  */
-export function removeNote({ fs: _fs, onSign, dir, gitdir, ref, oid, author: _author, committer: _committer, signingKey, }): Promise<string>;
+export function removeNote({ fs: _fs, onSign, dir, gitdir, ref, oid, author: _author, committer: _committer, signingKey, }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    onSign?: SignCallback;
+    dir?: string;
+    gitdir?: string;
+    ref?: string;
+    oid: string;
+    author?: {
+        name?: string;
+        email?: string;
+        timestamp?: number;
+        timezoneOffset?: number;
+    };
+    committer?: {
+        name?: string;
+        email?: string;
+        timestamp?: number;
+        timezoneOffset?: number;
+    };
+    signingKey?: string;
+}): Promise<string>;
 /**
  * Reset a file in the git index (aka staging area)
  *
@@ -1904,7 +2468,13 @@ export function removeNote({ fs: _fs, onSign, dir, gitdir, ref, oid, author: _au
  * console.log('done')
  *
  */
-export function resetIndex({ fs: _fs, dir, gitdir, filepath, ref, }): Promise<void>;
+export function resetIndex({ fs: _fs, dir, gitdir, filepath, ref, }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    dir?: string;
+    gitdir?: string;
+    filepath: string;
+    ref?: string;
+}): Promise<void>;
 /**
  * Get the value of a symbolic ref or resolve a ref to its SHA-1 object id
  *
@@ -1924,7 +2494,13 @@ export function resetIndex({ fs: _fs, dir, gitdir, filepath, ref, }): Promise<vo
  * console.log(currentBranch)
  *
  */
-export function resolveRef({ fs, dir, gitdir, ref, depth, }): Promise<string>;
+export function resolveRef({ fs, dir, gitdir, ref, depth, }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    dir?: string;
+    gitdir?: string;
+    ref: string;
+    depth?: number;
+}): Promise<string>;
 /**
  * Write an entry to the git config files.
  *
@@ -1967,7 +2543,14 @@ export function resolveRef({ fs, dir, gitdir, ref, depth, }): Promise<string>;
  * file = await fs.promises.readFile('/tutorial/.git/config', 'utf8')
  * console.log(file)
  */
-export function setConfig({ fs: _fs, dir, gitdir, path, value, append, }): Promise<void>;
+export function setConfig({ fs: _fs, dir, gitdir, path, value, append, }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    dir?: string;
+    gitdir?: string;
+    path: string;
+    value: string | number | boolean | void;
+    append?: boolean;
+}): Promise<void>;
 /**
  * Tell whether a file has been changed
  *
@@ -2002,7 +2585,12 @@ export function setConfig({ fs: _fs, dir, gitdir, path, value, append, }): Promi
  * console.log(status)
  *
  */
-export function status({ fs: _fs, dir, gitdir, filepath, }): Promise<'ignored' | 'unmodified' | '*modified' | '*deleted' | '*added' | 'absent' | 'modified' | 'deleted' | 'added' | '*unmodified' | '*absent' | '*undeleted' | '*undeletemodified'>;
+export function status({ fs: _fs, dir, gitdir, filepath, }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    dir: string;
+    gitdir?: string;
+    filepath: string;
+}): Promise<"modified" | "ignored" | "unmodified" | "*modified" | "*deleted" | "*added" | "absent" | "deleted" | "added" | "*unmodified" | "*absent" | "*undeleted" | "*undeletemodified">;
 /**
  * Efficiently get the status of multiple files at once.
  *
@@ -2142,7 +2730,14 @@ export function status({ fs: _fs, dir, gitdir, filepath, }): Promise<'ignored' |
  * @returns {Promise<Array<StatusRow>>} Resolves with a status matrix, described below.
  * @see StatusRow
  */
-export function statusMatrix({ fs: _fs, dir, gitdir, ref, filepaths, filter, }): Promise<Array<StatusRow>>;
+export function statusMatrix({ fs: _fs, dir, gitdir, ref, filepaths, filter, }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    dir: string;
+    gitdir?: string;
+    ref?: string;
+    filepaths?: string[];
+    filter?: (arg0: string) => boolean;
+}): Promise<[string, 0 | 1, 0 | 1 | 2, 0 | 1 | 2 | 3][]>;
 /**
  * Create a lightweight tag
  *
@@ -2161,7 +2756,14 @@ export function statusMatrix({ fs: _fs, dir, gitdir, ref, filepaths, filter, }):
  * console.log('done')
  *
  */
-export function tag({ fs: _fs, dir, gitdir, ref, object, force, }): Promise<void>;
+export function tag({ fs: _fs, dir, gitdir, ref, object, force, }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    dir?: string;
+    gitdir?: string;
+    ref: string;
+    object?: string;
+    force?: boolean;
+}): Promise<void>;
 /**
  * Return the version number of isomorphic-git
  *
@@ -2413,7 +3015,15 @@ export function version(): string;
  *
  * @returns {Promise<any>} The finished tree-walking result
  */
-export function walk({ fs, dir, gitdir, trees, map, reduce, iterate, }): Promise<any>;
+export function walk({ fs, dir, gitdir, trees, map, reduce, iterate, }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    dir?: string;
+    gitdir?: string;
+    trees: Walker[];
+    map?: WalkerMap;
+    reduce?: WalkerReduce;
+    iterate?: WalkerIterate;
+}): Promise<any>;
 /**
  * Write a blob object directly
  *
@@ -2436,7 +3046,12 @@ export function walk({ fs, dir, gitdir, trees, map, reduce, iterate, }): Promise
  * console.log('oid', oid) // should be 'e69de29bb2d1d6434b8b29ae775ad8c2e48c5391'
  *
  */
-export function writeBlob({ fs, dir, gitdir, blob }): Promise<string>;
+export function writeBlob({ fs, dir, gitdir, blob }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    dir?: string;
+    gitdir?: string;
+    blob: Uint8Array;
+}): Promise<string>;
 /**
  * Write a commit object directly
  *
@@ -2450,7 +3065,12 @@ export function writeBlob({ fs, dir, gitdir, blob }): Promise<string>;
  * @see CommitObject
  *
  */
-export function writeCommit({ fs, dir, gitdir, commit, }): Promise<string>;
+export function writeCommit({ fs, dir, gitdir, commit, }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    dir?: string;
+    gitdir?: string;
+    commit: CommitObject;
+}): Promise<string>;
 /**
  * Write a git object directly
  *
@@ -2516,7 +3136,16 @@ export function writeCommit({ fs, dir, gitdir, commit, }): Promise<string>;
  * console.log('tag', oid)
  *
  */
-export function writeObject({ fs: _fs, dir, gitdir, type, object, format, oid, encoding, }): Promise<string>;
+export function writeObject({ fs: _fs, dir, gitdir, type, object, format, oid, encoding, }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    dir?: string;
+    gitdir?: string;
+    object: string | Uint8Array | TreeEntry[] | CommitObject | TagObject;
+    type?: "blob" | "tree" | "commit" | "tag";
+    format?: "parsed" | "deflated" | "content" | "wrapped";
+    oid?: string;
+    encoding?: string;
+}): Promise<string>;
 /**
  * Write a ref which refers to the specified SHA-1 object id, or a symbolic ref which refers to the specified ref.
  *
@@ -2549,7 +3178,15 @@ export function writeObject({ fs: _fs, dir, gitdir, type, object, format, oid, e
  * console.log('done')
  *
  */
-export function writeRef({ fs: _fs, dir, gitdir, ref, value, force, symbolic, }): Promise<void>;
+export function writeRef({ fs: _fs, dir, gitdir, ref, value, force, symbolic, }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    dir?: string;
+    gitdir?: string;
+    ref: string;
+    value: string;
+    force?: boolean;
+    symbolic?: boolean;
+}): Promise<void>;
 /**
  * Write an annotated tag object directly
  *
@@ -2587,7 +3224,12 @@ export function writeRef({ fs: _fs, dir, gitdir, ref, value, force, symbolic, })
  * console.log('tag', oid)
  *
  */
-export function writeTag({ fs, dir, gitdir, tag }): Promise<string>;
+export function writeTag({ fs, dir, gitdir, tag }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    dir?: string;
+    gitdir?: string;
+    tag: TagObject;
+}): Promise<string>;
 /**
  * Write a tree object directly
  *
@@ -2602,14 +3244,19 @@ export function writeTag({ fs, dir, gitdir, tag }): Promise<string>;
  * @see TreeEntry
  *
  */
-export function writeTree({ fs, dir, gitdir, tree }): Promise<string>;
+export function writeTree({ fs, dir, gitdir, tree }: {
+    fs: CallbackFsClient | PromiseFsClient;
+    dir?: string;
+    gitdir?: string;
+    tree: TreeEntry[];
+}): Promise<string>;
 declare class AlreadyExistsError extends BaseError {
     /**
      * @param {'note'|'remote'|'tag'|'branch'} noun
      * @param {string} where
      * @param {boolean} canForce
      */
-    constructor(noun: 'note' | 'remote' | 'tag' | 'branch', where: string, canForce?: boolean);
+    constructor(noun: "tag" | "remote" | "note" | "branch", where: string, canForce?: boolean);
     code: "AlreadyExistsError";
     name: "AlreadyExistsError";
     data: {
@@ -2627,7 +3274,7 @@ declare class AmbiguousError extends BaseError {
      * @param {string} short
      * @param {string[]} matches
      */
-    constructor(nouns: 'oids' | 'refs', short: string, matches: string[]);
+    constructor(nouns: "refs" | "oids", short: string, matches: string[]);
     code: "AmbiguousError";
     name: "AmbiguousError";
     data: {
@@ -2815,7 +3462,7 @@ declare class MissingNameError extends BaseError {
     /**
      * @param {'author'|'committer'|'tagger'} role
      */
-    constructor(role: 'author' | 'committer' | 'tagger');
+    constructor(role: "author" | "committer" | "tagger");
     code: "MissingNameError";
     name: "MissingNameError";
     data: {
@@ -2878,7 +3525,7 @@ declare class ObjectTypeError extends BaseError {
      * @param {'blob'|'commit'|'tag'|'tree'} expected
      * @param {string} [filepath]
      */
-    constructor(oid: string, actual: 'blob' | 'commit' | 'tag' | 'tree', expected: 'blob' | 'commit' | 'tag' | 'tree', filepath?: string | undefined);
+    constructor(oid: string, actual: "blob" | "tree" | "commit" | "tag", expected: "blob" | "tree" | "commit" | "tag", filepath?: string | undefined);
     code: "ObjectTypeError";
     name: "ObjectTypeError";
     data: {
@@ -2913,7 +3560,7 @@ declare class PushRejectedError extends BaseError {
     /**
      * @param {'not-fast-forward'|'tag-exists'} reason
      */
-    constructor(reason: 'not-fast-forward' | 'tag-exists');
+    constructor(reason: "not-fast-forward" | "tag-exists");
     code: "PushRejectedError";
     name: "PushRejectedError";
     data: {
@@ -2929,7 +3576,7 @@ declare class RemoteCapabilityError extends BaseError {
      * @param {'shallow'|'deepen-since'|'deepen-not'|'deepen-relative'} capability
      * @param {'depth'|'since'|'exclude'|'relative'} parameter
      */
-    constructor(capability: 'shallow' | 'deepen-since' | 'deepen-not' | 'deepen-relative', parameter: 'depth' | 'since' | 'exclude' | 'relative');
+    constructor(capability: "shallow" | "deepen-since" | "deepen-not" | "deepen-relative", parameter: "depth" | "since" | "exclude" | "relative");
     code: "RemoteCapabilityError";
     name: "RemoteCapabilityError";
     data: {
