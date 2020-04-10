@@ -66,10 +66,18 @@ async function addToIndex({ dir, gitdir, fs, filepath, index }) {
     )
     await Promise.all(promises)
   } else {
-    const object = stats.isSymbolicLink()
+    let object = stats.isSymbolicLink()
       ? await fs.readlink(join(dir, filepath))
       : await fs.read(join(dir, filepath))
     if (object === null) throw new NotFoundError(filepath)
+
+		// _writeObject expects object to be a byte array, readlink
+		// returns a string.
+		if (stats.isSymbolicLink()) {
+			const encoder = new TextEncoder();
+			object = encoder.encode(object);
+		} 
+
     const oid = await _writeObject({ fs, gitdir, type: 'blob', object })
     index.insert({ filepath, stats, oid })
   }
